@@ -1,0 +1,10 @@
+#alterdot-toolbar-qa2r {
+    position: fixed;
+    z-index: 10000;
+    bottom: 0;
+    right: 5vw;
+    width: 270px;
+    height: 36px;
+    border: none;
+    background: transparent;
+}

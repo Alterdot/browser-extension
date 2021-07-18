@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>
+        Alterdot Settings
+    </title>
+    <link rel="stylesheet" href="options.css">
+    <script src="options.js"></script>
+</head>
+<body>
+<div class="main-container">
+    <span class="welcome-text">Alterdot Settings</span>
+    <img class="alterdot-logo" src="alterdot256.png">
+    <form id="settings-form">
+        <div class="settings-row">
+        Here you can configure your connections to the Alterdot and IPFS networks and more.
+        </div>
+        <div class="settings-row">
+            <span>Wallet RPC Port</span>
+            <input class="settings-input" type="text" name="wallet-port">
+        </div>
+        <div class="settings-row">
+            <span>Wallet RPC Username</span>
+            <input class="settings-input" type="text" name="wallet-user">
+        </div>
+        <div class="settings-row">
+            <span>Wallet RPC Password</span>
+            <input class="settings-input" type="text" name="wallet-pass">
+        </div>
+        <div class="settings-row">
+            <span>IPFS Local Gateway Port</span>
+            <input class="settings-input" type="text" name="ipfs-port">
+        </div>
+        <div class="settings-row delimited-row-title">
+            <span>Alterdot Domain Access Identifiers</span>
+        </div>
+        <div class="explain-fragment">
+            &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for an Alterdot domain.
+            The default identifiers are <b>.adot</b> and <b>.bdns</b> which are added at the end of the domain name or <b>a.</b> added in front. For example, by searching for either <b>alterdot.adot</b>, <b>alterdot.bdns</b> or <b>a.alterdot</b> you will be taken to the "alterdot" domain registered on our BlockchainDNS.
+            If you want to access a normal domain with the name "a", e.g. "a.com", disable Alterdot routing in your browser extension popup.
+        </div>
+        <div class="settings-row">
+            <div class="column">
+                <span>Custom Access Identifier</span>
+                <span class="under-text">Create your own custom identifier here, by default ".chain" can also be used for addressing, change it to anything you want.</span>
+            </div>
+            <input class="settings-input" type="text" name="custom-identifier">
+        </div>
+    </form>
+    <button id="save-button">Save</button>  
+</div>
+</body>
+</html>

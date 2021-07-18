@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "Alterdot Browser Extension",
+  "version": "0.0.7",
+  "description": "Redirects BDNS requests to IPFS and allows for simple wallet interaction.",
+  "permissions": [
+    "file://*/*",
+    "*://*/*search?q=*",
+    "*://*.bdns/*",
+    "*://*.adot/*",
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "nativeMessaging"
+  ],
+  "background": {
+    "scripts": ["common.js", "background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["toolbar.js", "toolbar-init.js"],
+      "css": ["toolbar-init.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    "toolbar.html",
+    "toolbar.css",
+    "Oswald-Regular.ttf",
+    "Oswald-Bold.ttf"
+  ],
+  "browser_action": {
+    "default_icon": "alterdot128.png",
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "128": "alterdot128.png"
+  }
+}
