@@ -3,7 +3,7 @@ body {
     display: flex;
 }
 
-#main {
+#maximized {
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -21,11 +21,11 @@ body {
     width: 26px;
 }
 
-#toolbar-minimize .arrow {
+#trigger-minimize .arrow {
     bottom: 4px;
 }
 
-#toolbar-maximize .arrow {
+#trigger-maximize .arrow {
     bottom: -8px;
 }
 

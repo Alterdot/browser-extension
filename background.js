@@ -347,24 +347,14 @@ function init() {
 
     // communication between the toolbar that resides in an opened tab and the toolbar initializer/controller, messages have to be passed through background as they can't communicate directly
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-        if (request.msg == "minimize-toolbar" || request.msg == "maximize-toolbar" || request.msg == "hide-toolbar" || request.msg == "show-toolbar") {
+        if (request.resolveDomain) {
             chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-            if (tabs[0]) {
-                chrome.tabs.sendMessage(tabs[0].id, request, (response) => {
-                if (response) {
-                    console.log("background bdns: received ", response, " from ", sender, " ... relaying it");
-        
-                    if (response.minimized != undefined) {
-                    this.minimizedToolbar = response.minimized;
-                    console.log(this.minimizedToolbar);
-                    }
-        
-                    sendResponse(response);
+                if (tabs[0]) {
+                    resolveDomain(request.resolveDomain, tabs[0].id);
                 }
-                });
-            }
             });
         }
+
         return true;
     });
 }

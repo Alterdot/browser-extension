@@ -317,6 +317,10 @@ input[type=number] {
     box-shadow: inset -1px 0px 6px 0px #8A8A8A;
 }
 
+.toggle-toolbar-button.active {
+    background-color: rgba(44, 175, 44, 0.6) !important;
+}
+
 .settings-button {
     position: absolute;
     right: 0px;

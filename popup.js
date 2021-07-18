@@ -3,7 +3,7 @@ var state = {
     onlineIPFS: false,
     walletOpen: false,
     decentralized: false,
-    toolbarVisible: false,
+    toolbarState: "hidden",
     useInterceptedSearch: true,
     selectedOperation: "send",
     rpcUser: "user",
@@ -14,70 +14,27 @@ var state = {
     readyDOM: false
 }
 
+// TODO_ADOT_MEDIUM possible BDNS registration/update transaction info
+
 function toggleWallet() {
-    let changeViewButton = document.getElementsByClassName('change-view-button')[0];
-    let changeViewLayer0 = document.getElementsByClassName('change-view-layer-0')[0];
-    let changeViewLayer1 = document.getElementsByClassName('change-view-layer-1')[0];
     let changeViewText = document.getElementById("change-view-text");
     let initialView = document.getElementsByClassName("home-container")[0];
     let walletView = document.getElementsByClassName("wallet-container")[0];
-
-    // TODO_ADOT_LOW decide whether or not to add the transition
-    /*
-    changeViewButton.classList.add("no-click");
-
-    changeViewLayer0.classList.remove("no-trans");
-    changeViewLayer1.classList.remove("no-trans");
-
-    changeViewButton.classList.add("start-trans");
-    changeViewLayer0.classList.add("start-trans");
-    changeViewLayer1.classList.add("start-trans");
-
-    changeViewText.style.opacity = "0";
-    */
-    setTimeout(() => {
-        if (changeViewText.innerHTML == "Wallet") {
-            initialView.style.display = "none";
-            walletView.style.display = "flex";
-            
-            state.walletOpen = true;
-            loopRefreshWallet();
-        } else if (changeViewText.innerHTML == "Home") {
-            initialView.style.display = "flex";
-            walletView.style.display = "none";
-            
-            state.walletOpen = false;
-        }
-        /*
-        changeViewButton.classList.remove("start-trans");
-        
-        changeViewLayer0.classList.remove("start-trans");
-        changeViewLayer0.classList.add("end-trans");
     
-        changeViewLayer1.classList.remove("start-trans");
-        changeViewLayer1.classList.add("end-trans");
-        */
-    }, 10);
-
-    setTimeout(() => {
-        if (changeViewText.innerHTML == "Wallet") {
-            changeViewText.innerHTML = "Home";
-        } else if (changeViewText.innerHTML == "Home") {
-            changeViewText.innerHTML = "Wallet";
-        }
-
-        changeViewText.style.opacity = "1";
-    }, 10);
-
-    /*
-    setTimeout(() => {
-        changeViewLayer0.classList.add("no-trans");
-        changeViewLayer1.classList.add("no-trans");
-        changeViewLayer0.classList.remove("end-trans");
-        changeViewLayer1.classList.remove("end-trans");
-        changeViewButton.classList.remove("no-click");
-    }, 1100);
-    */
+    if (changeViewText.innerHTML == "Wallet") {
+        initialView.style.display = "none";
+        walletView.style.display = "flex";
+        changeViewText.innerHTML = "Home";
+        
+        state.walletOpen = true;
+        loopRefreshWallet();
+    } else if (changeViewText.innerHTML == "Home") {
+        initialView.style.display = "flex";
+        walletView.style.display = "none";
+        changeViewText.innerHTML = "Wallet";
+        
+        state.walletOpen = false;
+    }
 }
 
 function refreshBalance(value) {
@@ -99,20 +56,40 @@ function processLatestTransactions(latestTransactions = []) {
                 txInfo.innerHTML += " " + latestTransactions[i].account;
             }
 
-            txInfo.innerHTML += "<br>" + latestTransactions[i].address;
+            txInfo.innerHTML += "<br>";
+
+            if (latestTransactions[i].address !== undefined) {
+                txInfo.innerHTML += latestTransactions[i].address;
+            } else if (latestTransactions[i].category == "send") {
+                if (latestTransactions[i].amount === -0.1 && latestTransactions[i].fee === -0.1) {
+                    txInfo.innerHTML += "BlockchainDNS Registration";
+                    
+                    txType.innerHTML = "REG";
+                    txType.style.color = "rgb(30, 118, 210)";
+
+                    continue;
+                } else if (latestTransactions[i].amount === -0.005 && latestTransactions[i].fee === -0.005) {
+                    txInfo.innerHTML += "BlockchainDNS Update";
+                    
+                    txType.innerHTML = "UPD";
+                    txType.style.color = "rgb(30, 118, 210)";
+
+                    continue;
+                }
+            }
 
             if (latestTransactions[i].category == "generate" || latestTransactions[i].category == "receive") {
                 txType.innerHTML = "IN";
                 txType.style.color = "rgb(50, 205, 50)";
-            } else if (latestTransactions[i].category == "send") {
+            } else if (latestTransactions[i].category === "send") {
                 txType.innerHTML = "OUT";
                 txType.style.color = "rgb(255, 0, 0)";
             } else if (latestTransactions[i].category == "immature") {
                 txType.innerHTML = "IMM";
-                txType.style.color = "rgb(192,192,192)";
+                txType.style.color = "rgb(192, 192, 192)";
             } else if (latestTransactions[i].category == "orphan") {
                 txType.innerHTML = "OPH";
-                txType.style.color = "rgb(192,192,192)";
+                txType.style.color = "rgb(192, 192, 192)";
             }
         }
     }
@@ -123,7 +100,7 @@ function updateDecentralized() {
         decentContainer = document.getElementsByClassName("decent-container")[0];
         decentText = document.getElementsByClassName("decent-text")[0];
 
-        decentContainer.style.transition = "background-color 1.5s ease"; // add the transition effect only when first 
+        decentContainer.style.transition = "background-color 1.5s ease"; // add the transition effect only when first changing the Decentralized status 
         decentContainer.style.backgroundColor = "rgba(44, 175, 44, 0.8)";
         decentText.style.color = "rgba(255, 255, 255, 0.9)";
     } else {
@@ -137,17 +114,18 @@ function updateDecentralized() {
 }
 
 function hideToolbar() {
-    document.getElementsByClassName("toggle-toolbar-button")[0].style.backgroundColor = "#20072F";
-    chrome.storage.sync.set({ "toolbarVisible": false });
+    document.getElementById("toolbar-button").classList.remove("active");
+    chrome.storage.sync.set({ "toolbarState": "hidden" });
 }
 
 function showToolbar() {
-    document.getElementsByClassName("toggle-toolbar-button")[0].style.backgroundColor = "rgba(44, 175, 44, 0.6)";
-    chrome.storage.sync.set({ "toolbarVisible": true });
+    document.getElementById("toolbar-button").classList.add("active");
+    chrome.storage.sync.set({ "toolbarState": "maximized" });
 }
 
+// if the toolbar is hidden it should always get displayed maximized after toggling
 function toggleToolbar() {
-    state.toolbarVisible ? hideToolbar() : showToolbar();
+    state.toolbarState === "hidden" ? showToolbar() : hideToolbar();
 }
 
 function executeOperation() {
@@ -327,13 +305,13 @@ function syncState() {
         state.ready++;
     });
 
-    chrome.storage.sync.get("toolbarVisible", function (result) {
-        if (result && "toolbarVisible" in result) {
-            state.toolbarVisible = result["toolbarVisible"];
+    chrome.storage.sync.get("toolbarState", function (result) {
+        if (result && "toolbarState" in result) {
+            state.toolbarState = result["toolbarState"];
 
             doWhenDOMReady(() => {
-                if (state.toolbarVisible) {
-                    document.getElementsByClassName("toggle-toolbar-button")[0].style.backgroundColor = "rgba(44, 175, 44, 0.6)";
+                if (state.toolbarState === "maximized" || state.toolbarState === "minimized") {
+                    document.getElementById("toolbar-button").classList.add("active");
                 }
             });
         }
@@ -342,19 +320,19 @@ function syncState() {
     });
 }
 
-function doWhenDOMReady(toDo, noTry = 0) {
+function doWhenDOMReady(action, noTry = 0) {
     if (state.readyDOM === false) {
         if (noTry > 100) // prevent never-ending loops, if readyDOM is not true after 10 seconds then there's most probably some other problem going on
             return;
 
         setTimeout(() => {
-            doWhenDOMReady(toDo, noTry++);
+            doWhenDOMReady(action, noTry++);
         }, 100);
     
         return;
     }
 
-    toDo();
+    action();
 }
 
 chrome.storage.onChanged.addListener(function (changes, area) {
@@ -411,7 +389,7 @@ function updateAdotStatus() {
 function updateIpfsStatus() {
     let ipfsStatus = document.getElementById("ipfs-status");
 
-    if (state.onlineIPFS) {
+    if (state.onlineIPFS === true) {
         ipfsStatus.classList.add("active");
     } else if (state.onlineIPFS === false) {
         ipfsStatus.classList.remove("active");
@@ -447,8 +425,10 @@ document.addEventListener('DOMContentLoaded', function () {
     for (const option of document.querySelectorAll(".action-option")) {
         option.addEventListener('click', function () {
             if (!this.classList.contains('selected')) {
-                console.log(this.dataset.value);
+                console.log("selected wallet operation: ", this.dataset.value);
+
                 updateOperation(this.dataset.value);
+
                 this.parentNode.querySelector('.action-option.selected').classList.remove('selected');
                 this.classList.add('selected');
                 this.closest('.action-select').querySelector('.action-select__trigger span').textContent = this.textContent;

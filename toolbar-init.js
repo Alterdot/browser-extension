@@ -20,6 +20,23 @@ function showToolbar() {
     frame.style.display = "block";
 }
 
+function updateToolbar(newState) {
+    switch (newState) {
+        case "minimized": // if it gets minimized then it is already displayed
+            minimizeToolbar();
+            break;
+        case "maximized":
+            maximizeToolbar();
+            showToolbar(); // show it in case it was previously hidden instead of minimized
+            break;
+        case "hidden":
+            hideToolbar();
+            break;
+        default:
+            break;
+    }
+}
+
 function init() {
     var iframe = document.createElement("iframe");
     iframe.src = chrome.extension.getURL('toolbar.html');
@@ -28,38 +45,15 @@ function init() {
     document.body.append(iframe);
     hideToolbar();
 
-    chrome.storage.sync.get("toolbarVisible", function(result) {
-        if (result && "toolbarVisible" in result) {
-            if (result["toolbarVisible"] === true) {
-                showToolbar();
-            } else {
-                hideToolbar();
-            }
+    chrome.storage.sync.get("toolbarState", function(result) {
+        if (result && "toolbarState" in result) {
+            updateToolbar(result["toolbarState"]);
         }
     });
     
     chrome.storage.onChanged.addListener(function(changes, area) {
-        if (area == "sync" && "toolbarVisible" in changes) {
-            changes["toolbarVisible"].newValue ? showToolbar() : hideToolbar();
-        }
-    });
-
-    chrome.runtime.onMessage.addListener((request, sender, sendReponse) => {
-        console.log("toolbar-init: received request ", request);
-    
-        if (request) {
-            if (request.msg == "minimize-toolbar") {
-                minimizeToolbar();
-            } else if (request.msg == "maximize-toolbar") {
-                maximizeToolbar();
-            } else if (request.msg == "hide-toolbar") {
-                console.log("boss");
-                hideToolbar();
-            } else if (request.msg == "show-toolbar") {
-                showToolbar();
-            }
-    
-            sendReponse({ "success": true });
+        if (area == "sync" && "toolbarState" in changes) {
+            updateToolbar(changes["toolbarState"].newValue);
         }
     });
 }
