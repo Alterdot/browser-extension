@@ -28,6 +28,7 @@ body {
     margin: unset;
     font-family: 'Roboto';
     letter-spacing: 0.03em;
+    line-height: 1.4;
     color: white;
 }
 
@@ -47,7 +48,7 @@ body {
     box-shadow: inset 0px 0px 8px 0px #8A8A8A;
 }
 
-.home-container {
+#home-container {
     width: 100%;
     height: 100%;
     display: flex;
@@ -92,15 +93,6 @@ body {
     left: 0px;
 }
 
-#setup-wallet-container {
-    width: 320px;
-    transition: all 0.5s ease;
-    position: absolute;
-    right: -340px;
-    text-align: justify;
-    padding: 0px 10px;
-}
-
 .actions-container {
     width: 340px;
     padding: 0px 15px;
@@ -142,7 +134,7 @@ body {
 }
 
 .wallet-action-button {
-    margin: 6px 0px;
+    margin: 5px 0px;
     background-color: #C53B51;
     border-radius: 8px;
     border: unset;
@@ -301,6 +293,13 @@ input[type=number] {
     background-color: #6ebf6e;
 }
 
+.main-buttons-container {
+    position: absolute;
+    height: inherit;
+    width: inherit;
+    top: 0px;
+}
+
 .toggle-toolbar-button {
     position: absolute;
     right: 0px;
@@ -368,66 +367,8 @@ input[type=number] {
     box-shadow: inset -1px 0px 6px 0px #8A8A8A;
 }
 
-.change-view-layer-0 {
-    background: linear-gradient(to top left, #5f1248, #994b82 100%);
-    transition: all 0.5s ease 0.1s;
-}
-
-.change-view-layer-1 {
-    background: linear-gradient(to top left, #4c2a97, #8467c0 100%);
-    transition: all 0.5s ease 0.2s;
-}
-
-.change-view-layer-0,
-.change-view-layer-1 {
-    bottom: 105px;
-    right: 0px;
-    width: 0px;
-    height: 0px;
-    position: absolute;
-    border-radius: 8px;
-    z-index: 10;
-}
-
-.change-view-button.start-trans,
-.change-view-layer-0.start-trans,
-.change-view-layer-1.start-trans {
-    bottom: -10px;
-    right: -10px;
-    width: 110%;
-    height: 110%;
-}
-
-.change-view-button.start-trans {
-    border-radius: 8px;
-}
-
-.change-view-layer-0.end-trans {
-    top: -10px;
-    right: -10px;
-    width: 40px;
-    height: 0px;
-}
-
-.change-view-layer-1.end-trans {
-    transition-delay: 0s !important;
-    left: -10px;
-    bottom: -10px;
-    width: 0px;
-    height: 60px;
-}
-
-.change-view-layer-0.no-trans,
-.change-view-layer-1.no-trans {
-    transition: unset !important;
-}
-
 .change-view-button.active {
     background: #C53B51;
-}
-
-.no-click {
-    pointer-events: none !important;
 }
 
 #change-view-text {
@@ -439,7 +380,7 @@ input[type=number] {
     user-select: none;
 }
 
-.wallet-container {
+#wallet-container {
     display: none;
     width: 100%;
     height: 100%;
@@ -473,7 +414,7 @@ input[type=number] {
 .transaction {
     width: inherit;
     align-items: center;
-    height: 38px;
+    height: 37px;
     display: flex;
     box-sizing: border-box;
     padding-left: 16px;
@@ -510,7 +451,7 @@ input[type=number] {
     flex-direction: column;
     border-radius: 4px;
     border: 2px solid #D3D3D350;
-    height: 28px;
+    height: 30px;
 }
 
 .action-select__trigger {
@@ -688,4 +629,52 @@ input:checked+.slider:before {
 
 .slider.round:before {
     border-radius: 50%;
+}
+
+#notification {
+    position: absolute;
+    width: 280px;
+    min-height: 64px;
+    height: fit-content;
+    padding: 12px 20px 12px 12px;
+    border-radius: 8px;
+    box-shadow: inset 0px -2px 4px 0px #151515;
+    bottom: 40px;
+    left: -290px;
+    margin: auto;
+    color: white;
+    transition: transform 0.8s ease;
+}
+
+#notification #text-notif {
+    text-align: justify;
+    word-wrap: break-word;
+}
+
+#notification.visible {
+    transform: translateX(300px);
+}
+
+#close-notif {
+    position: absolute;
+    font-size: 20px;
+    top: 1px;
+    right: 8px;
+}
+
+#close-notif::after {
+    content: "\00D7";
+    color: rgb(43 43 43);
+}
+
+#notification.error {
+    background-color: rgb(190, 72, 72);
+}
+
+#notification.success {
+    background-color: rgb(64, 140, 64);
+}
+
+#notification.info {
+    background-color: rgb(54, 121, 197);
 }

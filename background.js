@@ -9,7 +9,8 @@ var state = {
     ipfsPort: "8080",
     customIdentifier: "chain",
     useInterceptedSearch: true,
-    ready: 0 // ready on 4
+    ready: 0, // ready on 5
+    useDebug: false
 };
 
 const defaultSupportedIdentifiers = ["a", "adot"];
@@ -47,6 +48,14 @@ function syncState() {
         state.ready++;
     });
     
+    chrome.storage.sync.get("useDebug", function (result) {
+        if (result && "useDebug" in result) {
+            state.useDebug = result["useDebug"];
+        }
+    
+        state.ready++;
+    });
+
     chrome.storage.sync.get("customIdentifier", function (result) {
         if (result && result["customIdentifier"]) {
             state.customIdentifier = result["customIdentifier"];
@@ -75,7 +84,7 @@ function redirectCustomIdentifierRequestError(requestError) {
 
 function processUpdatedStorageElement(name, value) {
     if (state[name] != value.oldValue)
-        console.log(`Warning: In background, the old value of ${name} in state, ${state[name].toString()}, doesn't match the old value ${value.oldValue} from storage.`);
+        console.log(`Warning: In background, the old value of ${name} in state doesn't match the old value from storage.`);
 
     state[name] = value.newValue;
     
@@ -104,7 +113,7 @@ function renewCustomInterceptedSearch() {
     browser.webRequest.onBeforeRequest.removeListener(redirectCustomIdentifierInterceptedSearch);
 
     browser.webRequest.onBeforeRequest.addListener(redirectCustomIdentifierInterceptedSearch,
-        { urls: [`*://*/*search?q=*.${state.customIdentifier}*`] }, ["blocking"]);
+        { urls: [`*://*/*?q=*.${state.customIdentifier}*`] }, ["blocking"]);
 }
 
 // removes the old listener if any and adds a new one with the latest customIdentifier
@@ -130,15 +139,20 @@ function newTab(ipfsHash) {
 }
 
 function redirectTab(tabId, ipfsHash) {
-    if (state.onlineIPFS === true && state.ready === 4) {
+    if (state.onlineIPFS === true && state.ready === 5) {
         chrome.tabs.update(tabId, { url: `${getIpfsBaseUrl(state.ipfsPort)}${ipfsHash}` });
     } else {
         chrome.tabs.update(tabId, { url: `https://ipfs.io/ipfs/${ipfsHash}` });
     }
 }
 
+function domainNotFound(domainName) {
+    console.log(`Alterdot domain ${domainName} not found.`);
+    // TODO_ADOT_MEDIUM redirect to "domain not found" IPFS page
+}
+
 function resolveDomain(domainName, tabId) {
-    if (state.onlineADOT === true && state.ready === 4) {
+    if (state.onlineADOT === true && state.ready === 5) {
         const walletUrl = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
 
         sendCommand(walletUrl, "resolvedomain", [domainName],
@@ -149,18 +163,24 @@ function resolveDomain(domainName, tabId) {
                     domainNotFound(domainName);
                 }
             },
-            (command) => {
-                sendCommandFailed(command, "resolveDomain");
-            }
+            (reqStatus, errMessage) => {
+                processRequestFail(state.useDebug, reqStatus, errMessage, "wallet resolve domain");
+            },
+            state.useDebug
         );
     } else {
         serverResolveDomain(domainName,
             (ipfsHash) => {
-                redirectTab(tabId, ipfsHash);
+                if (ipfsHash !== "Blockchain domain name not found!") {
+                    redirectTab(tabId, ipfsHash);
+                } else {
+                    domainNotFound(domainName);
+                }
             },
-            (serverAddress, request, statusCode) => {
-                serverRequestFailed(serverAddress, request, statusCode, "resolveDomain"); 
-            }
+            (reqStatus, errMessage) => {
+                processRequestFail(state.useDebug, reqStatus, errMessage, "explorer resolve domain");
+            },
+            state.useDebug
         );
     }
 }
@@ -195,14 +215,17 @@ function redirectAlterdotDomainInterceptedSearch(request) {
         return;
     }
 
-    let domainStartIndex = url.indexOf("search?q=");
-    let sectionUrl = url.substr(domainStartIndex + 9);
+    let domainStartIndex = url.indexOf("?q=");
+    let sectionUrl = url.substr(domainStartIndex + 3);
     let domainEndIndex = sectionUrl.indexOf("&"); // search?q=a.domain& if the domain contains "&" this will break
     let domainParts = sectionUrl.slice(0, domainEndIndex).split('.');
 
     let supportedIdentifiers = defaultSupportedIdentifiers.slice();
     supportedIdentifiers.push(state.customIdentifier);
-    console.log("got this intercept", supportedIdentifiers);
+
+    if (state.useDebug) {
+        console.log("interceptedSearch supportedIdentifiers", supportedIdentifiers);
+    }
 
     if (supportedIdentifiers.includes(domainParts[domainParts.length - 1])) {
         domainParts.pop();
@@ -225,29 +248,31 @@ function checkIpfsConn(handleSuccess, handleFail) {
 
     req.onreadystatechange = function () { // Call a function when the state changes.
         if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
-            console.log("checkIpfsConn success");
+            if (state.useDebug) {
+                console.log("checkIpfsConn successful with response", req.responseText);
+            }
 
             handleSuccess(req.responseText);
         } else if (this.readyState === XMLHttpRequest.DONE) {
-            console.log("checkIpfsConn fail");
+            if (state.useDebug) {
+                console.log("checkIpfsConn failed with response", req.responseText);
+            }
 
-            handleFail();
+            handleFail(this.status, req.responseText);
         }
     }
 
     req.send();
 }
 
-function checkIpfsSuccess(result) {
-    console.log("checkIpfsSuccess with: ", result);
-
+function checkIpfsSuccess(response) {
     if (state.onlineIPFS === "none" || state.onlineIPFS === false) {
         chrome.storage.sync.set({ "onlineIPFS": true });
     }
 }
 
-function checkIpfsFail() {
-    console.log("checkIpfsFail");
+function checkIpfsFail(reqStatus, errMessage) {
+    processRequestFail(state.useDebug, reqStatus, errMessage, "checkIpfsFail");
 
     if (state.onlineIPFS === "none" || state.onlineIPFS === true) {
         chrome.storage.sync.set({ "onlineIPFS": false });
@@ -256,9 +281,9 @@ function checkIpfsFail() {
 
 // also sets the latest number of connections to the Alterdot network
 function checkWalletSuccess(result) {
-    console.log("checkWalletSuccess with: ", result);
-
-    chrome.browserAction.setBadgeText({ text: result["connections"].toString() });
+    if ("connections" in result) {
+        chrome.browserAction.setBadgeText({ text: result["connections"].toString() });
+    }
 
     if (state.onlineADOT === "none" || state.onlineADOT === false) {
         chrome.storage.sync.set({ "onlineADOT": true });
@@ -266,8 +291,6 @@ function checkWalletSuccess(result) {
 }
 
 function checkWalletFail() {
-    console.log("checkWalletFail");
-
     chrome.browserAction.setBadgeText({ text: "" });
 
     if (state.onlineADOT === "none" || state.onlineADOT === true) {
@@ -276,24 +299,24 @@ function checkWalletFail() {
 }
 
 async function loopWalletConn() {
-    console.log("loopWalletConn");
-
     let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-    sendCommand(url, "getinfo", [], checkWalletSuccess, checkWalletFail);
-    //getInfo(checkWalletSuccess, checkWalletFail);
+
+    sendCommand(url, "getinfo", [], checkWalletSuccess, (reqStatus, errMessage) => {
+        processRequestFail(state.useDebug, reqStatus, errMessage, "loopWalletConn getinfo");
+        checkWalletFail();
+    }, state.useDebug);
+
     setTimeout(loopWalletConn, 4000);
 }
 
 async function loopIpfsConn() {
-    console.log("loopIpfsConn");
-
     checkIpfsConn(checkIpfsSuccess, checkIpfsFail);
 
     setTimeout(loopIpfsConn, 4000);
 }
 
 function startLoops() {
-    if (state.ready != 4) {
+    if (state.ready != 5) {
         setTimeout(() => {
             startLoops();
         }, 100);
@@ -310,7 +333,7 @@ function renewDefaultInterceptedSearch() {
     browser.webRequest.onBeforeRequest.removeListener(redirectAlterdotDomainInterceptedSearch);
 
     browser.webRequest.onBeforeRequest.addListener(redirectAlterdotDomainInterceptedSearch,
-        { urls: ["*://*/*search?q=*.a*", "*://*/*search?q=*.adot*", "*://*/*search?q=a.*"] }, ["blocking"]);
+        { urls: ["*://*/*?q=*.a*", "*://*/*?q=*.adot*", "*://*/*?q=a.*"] }, ["blocking"]);
 }
 
 // removes the old listener if any and adds a new one
@@ -326,13 +349,13 @@ function init() {
 
     // state changes listener
     chrome.storage.onChanged.addListener(function (changes, area) {
-        console.log("storage changed");
-    
         if (area == "sync") {
             for (const key of Object.keys(changes)) {
-                console.log(key);
-    
                 if (Object.keys(state).includes(key)) {
+                    if (state.useDebug) {
+                        console.log(`storage ${key} changed`);
+                    }
+
                     processUpdatedStorageElement(key, changes[key]);
                 }
             }

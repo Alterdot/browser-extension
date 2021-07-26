@@ -6,20 +6,20 @@ var state = {
     toolbarState: "hidden",
     useInterceptedSearch: true,
     selectedOperation: "send",
+    notifTimer: null, // handler of notification timeout
     rpcUser: "user",
     rpcPass: "pass",
     rpcPort: "31050",
     ipfsPort: "8080",
-    ready: 0, // ready on 7
-    readyDOM: false
+    ready: 0, // ready on 8
+    readyDOM: false,
+    useDebug: false
 }
-
-// TODO_ADOT_MEDIUM possible BDNS registration/update transaction info
 
 function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
-    let initialView = document.getElementsByClassName("home-container")[0];
-    let walletView = document.getElementsByClassName("wallet-container")[0];
+    let initialView = document.getElementById("home-container");
+    let walletView = document.getElementById("wallet-container");
     
     if (changeViewText.innerHTML == "Wallet") {
         initialView.style.display = "none";
@@ -129,7 +129,10 @@ function toggleToolbar() {
 }
 
 function executeOperation() {
-    console.log(state.selectedOperation);
+    if (state.useDebug) {
+        console.log("selected operation", state.selectedOperation);
+    }
+
     let command = "cancel";
     let params = [];
 
@@ -137,8 +140,6 @@ function executeOperation() {
         case "send":
             let address = document.forms["wallet-action-form"]["address"].value;
             let amount = document.forms["wallet-action-form"]["amount"].value;
-            
-            console.log(address, amount);
             
             amount = parseFloat(amount);
 
@@ -156,8 +157,6 @@ function executeOperation() {
             let domainNameReg = document.forms["wallet-action-form"]["domain"].value;
             let ipfsHashReg = document.forms["wallet-action-form"]["hash"].value;
 
-            console.log(domainNameReg, ipfsHashReg);
-
             // TODO_ADOT_MEDIUM validations
 
             command = "registerdomain";
@@ -167,8 +166,6 @@ function executeOperation() {
             let domainNameUpd = document.forms["wallet-action-form"]["domain"].value;
             let ipfsHashUpd = document.forms["wallet-action-form"]["hash"].value;
 
-            console.log(domainNameUpd, ipfsHashUpd);
-
             // TODO_ADOT_MEDIUM validations
 
             command = "updatedomain";
@@ -177,8 +174,6 @@ function executeOperation() {
         case "unlock":
             let password = document.forms["wallet-action-form"]["password"].value;
             let duration = document.forms["wallet-action-form"]["duration"].value;
-
-            console.log(password, duration);
 
             duration = parseInt(duration);
 
@@ -193,33 +188,72 @@ function executeOperation() {
             params = [password, duration];
             break;
         default:
-            console.log("Error: Selected operation doesn't exist!");
+            if (state.useDebug) {
+                console.log("The selected operation doesn't exist!");
+            }
+
             break;
     }
 
     document.forms["wallet-action-form"].reset();
     let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-    sendCommand(url, command, params, operationSuccess, operationFailed);
+    sendCommand(url, command, params, (message) => {
+        if (command == "walletpassphrase") { // only possible operation that doesn't return a txHash
+            displayNotification("success", "Wallet unlocked successfully!");
+        } else { 
+            displayNotification("success", `Transaction succeeded with hash: ${message}`);
+        }
+    }, (reqStatus, errMessage) => {
+        processRequestFail(state.useDebug, reqStatus, errMessage, `walletAction ${command}`);
+
+        if (errMessage && errMessage['message']) {
+            displayNotification("error", errMessage['message']);
+        }
+    }, state.useDebug);
 }
 
-// TODO_ADOT_HIGH success/fail operation popup
+// type can be success, error or info
+function displayNotification(type, message) {
+    // ensures that the notification will not be cleared if a new error popped up and the last one has a running timer
+    clearTimeout(state.notifTimer);
 
-function operationSuccess(result) {
-
-}
-
-function operationFailed() {
+    let notification = document.getElementById("notification");
+    let notifText = document.getElementById("text-notif");
     
+    notification.classList.add(type);
+    notifText.innerHTML = message;
+
+    notification.classList.add("visible");
+
+    state.notifTimer = setTimeout(hideNotification, 10000);
+}
+
+function hideNotification() {
+    // the previous running timer is no longer needed
+    clearTimeout(state.notifTimer);
+
+    let notification = document.getElementById("notification");
+    let notifText = document.getElementById("text-notif");
+    
+    notification.classList.remove("visible");
+
+    // transition delay
+    setTimeout(function () {
+        notification.className = "";
+        notifText.innerHTML = "";
+    }, 800);
 }
 
 async function loopRefreshWallet() {
-    console.log("loopRefreshWallet");
-
     if (state.walletOpen === true) {
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
 
-        sendCommand(url, "getbalance", [], refreshBalance, (command) => { sendCommandFailed(command, "loopRefreshWallet"); });
-        sendCommand(url, "listtransactions", ["*", 6, 0], processLatestTransactions, (command) => { sendCommandFailed(command, "loopRefreshWallet"); });
+        sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
+            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet getbalance");
+        }, state.useDebug);
+        sendCommand(url, "listtransactions", ["*", 6, 0], processLatestTransactions, (reqStatus, errMessage) => {
+            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet listtransactions");
+        }, state.useDebug);
 
         setTimeout(loopRefreshWallet, 4000);
     }
@@ -227,15 +261,15 @@ async function loopRefreshWallet() {
 
 function updateOperation(operation) {
     state.selectedOperation = operation;
-    let selected = operation;
+    let selectedElement = operation;
 
-    if (selected === "update") {
-        selected = "register";
+    if (selectedElement === "update") {
+        selectedElement = "register";
     }
     
     document.forms["wallet-action-form"].reset();
     document.querySelector("#wallet-action-form .wallet-action:not(.invisible)").classList.toggle("invisible");
-    document.querySelector(`#wallet-action-form .wallet-action.${selected}-action`).classList.toggle("invisible");
+    document.querySelector(`#wallet-action-form .wallet-action.${selectedElement}-action`).classList.toggle("invisible");
 }
 
 function openSettings() {
@@ -290,6 +324,14 @@ function syncState() {
     
         state.ready++;
     });
+
+    chrome.storage.sync.get("useDebug", function (result) {
+        if (result && "useDebug" in result) {
+            state.useDebug = result["useDebug"];
+        }
+    
+        state.ready++;
+    });
     
     chrome.storage.sync.get("useInterceptedSearch", function (result) {
         if (result && "useInterceptedSearch" in result) {
@@ -335,23 +377,9 @@ function doWhenDOMReady(action, noTry = 0) {
     action();
 }
 
-chrome.storage.onChanged.addListener(function (changes, area) {
-    console.log("storage changed");
-
-    if (area == "sync") {
-        for (const key of Object.keys(changes)) {
-            console.log(key);
-
-            if (Object.keys(state).includes(key)) {
-                processUpdatedStorageElement(key, changes[key]);
-            }
-        }
-    }
-});
-
 function processUpdatedStorageElement(name, value) {
     if (state[name] != value.oldValue)
-        console.log(`Warning: In popup, the old value of ${name} in state, ${state[name].toString()}, doesn't match the old value ${value.oldValue} from storage.`);
+        console.log(`Warning: In popup, the old value of ${name} in state doesn't match the old value from storage.`);
 
     state[name] = value.newValue;
     
@@ -404,35 +432,52 @@ function toggleInterceptedSearch(action) {
     }
 }
 
-syncState();
+function init() {
+    syncState();
 
-document.addEventListener('DOMContentLoaded', function () {
-    setTimeout(() => {
-        document.getElementsByTagName("body")[0].classList.remove("on-init");
-    }, 400); // transitions are cancelled on popup initialization
-
-    state.readyDOM = true;
-
-    document.getElementById("execute-button").addEventListener("click", executeOperation);
-    document.getElementById("toolbar-button").addEventListener("click", toggleToolbar);
-    document.getElementById("settings-button").addEventListener("click", openSettings);
-    document.getElementById("intercepted-search-toggle").addEventListener("click", toggleInterceptedSearch);
-
-    document.querySelector('.action-select-wrapper').addEventListener('click', function () {
-        this.querySelector('.action-select').classList.toggle('open');
-    });
-
-    for (const option of document.querySelectorAll(".action-option")) {
-        option.addEventListener('click', function () {
-            if (!this.classList.contains('selected')) {
-                console.log("selected wallet operation: ", this.dataset.value);
-
-                updateOperation(this.dataset.value);
-
-                this.parentNode.querySelector('.action-option.selected').classList.remove('selected');
-                this.classList.add('selected');
-                this.closest('.action-select').querySelector('.action-select__trigger span').textContent = this.textContent;
+    chrome.storage.onChanged.addListener(function (changes, area) {
+        if (area == "sync") {
+            for (const key of Object.keys(changes)) {
+                if (state.useDebug) {
+                    console.log(`storage ${key} changed`);
+                }
+    
+                if (Object.keys(state).includes(key)) {
+                    processUpdatedStorageElement(key, changes[key]);
+                }
             }
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function () {
+        setTimeout(() => {
+            document.getElementsByTagName("body")[0].classList.remove("on-init");
+        }, 400); // transitions are cancelled on popup initialization
+    
+        state.readyDOM = true;
+    
+        document.getElementById("execute-button").addEventListener("click", executeOperation);
+        document.getElementById("toolbar-button").addEventListener("click", toggleToolbar);
+        document.getElementById("settings-button").addEventListener("click", openSettings);
+        document.getElementById("intercepted-search-toggle").addEventListener("click", toggleInterceptedSearch);
+        document.querySelector('#close-notif').addEventListener("click", hideNotification);
+    
+        document.querySelector('.action-select-wrapper').addEventListener('click', function () {
+            this.querySelector('.action-select').classList.toggle('open');
         });
-    }
-}, false);
+    
+        for (const option of document.querySelectorAll(".action-option")) {
+            option.addEventListener('click', function () {
+                if (!this.classList.contains('selected')) {
+                    updateOperation(this.dataset.value);
+    
+                    this.parentNode.querySelector('.action-option.selected').classList.remove('selected');
+                    this.classList.add('selected');
+                    this.closest('.action-select').querySelector('.action-select__trigger span').textContent = this.textContent;
+                }
+            });
+        }
+    }, false);
+}
+
+init();

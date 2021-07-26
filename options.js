@@ -1,10 +1,11 @@
 var state = {
+    useDebug: false,
     rpcUser: "user",
     rpcPass: "pass",
     rpcPort: "31050",
     ipfsPort: "8081",
     customIdentifier: "chain",
-    ready: 0 // ready on 5
+    ready: 0 // ready on 6
 };
 
 function syncState() {
@@ -39,6 +40,14 @@ function syncState() {
     
         state.ready++;
     });
+
+    chrome.storage.sync.get("useDebug", function (result) {
+        if (result && "useDebug" in result) {
+            state.useDebug = result["useDebug"];
+        }
+    
+        state.ready++;
+    });
     
     chrome.storage.sync.get("customIdentifier", function (result) {
         if (result && result["customIdentifier"]) {
@@ -57,12 +66,15 @@ function saveSettings() {
     chrome.storage.sync.set({ "rpcPass": document.forms["settings-form"]["wallet-pass"].value });
     chrome.storage.sync.set({ "ipfsPort": document.forms["settings-form"]["ipfs-port"].value });
     chrome.storage.sync.set({ "customIdentifier": document.forms["settings-form"]["custom-identifier"].value });
+    chrome.storage.sync.set({ "useDebug": document.forms["settings-form"]["use-debug"].checked });
 }
 
 function fillInitialFormData() {
-    console.log("fillInitialFormData begin");
+    if (state.useDebug) {
+        console.log("fillInitialFormData begin");
+    }
 
-    if (state.ready != 5) {
+    if (state.ready != 6) {
         setTimeout(() => {
             fillInitialFormData();
         }, 100);
@@ -75,6 +87,7 @@ function fillInitialFormData() {
     document.forms["settings-form"]["wallet-pass"].value = state.rpcPass;
     document.forms["settings-form"]["ipfs-port"].value = state.ipfsPort;
     document.forms["settings-form"]["custom-identifier"].value = state.customIdentifier;
+    document.forms["settings-form"]["use-debug"].checked = state.useDebug;
 }
 
 function init() {

@@ -13,7 +13,13 @@
     <img class="alterdot-logo" src="alterdot256.png">
     <form id="settings-form">
         <div class="settings-row">
-        Here you can configure your connections to the Alterdot and IPFS networks and more.
+            <div>
+                Here you can configure your connections to the Alterdot and IPFS networks and more. If this is the first time you see this page, you have to read the paragraphs below.
+            </div>
+            <div class="debug-section">
+                <input type="checkbox" name="use-debug">
+                <label for="use-debug">Use Debugging</label>
+            </div>
         </div>
         <div class="settings-row">
             <span>Wallet RPC Port</span>
@@ -36,9 +42,10 @@
         </div>
         <div class="explain-fragment">
             &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for an Alterdot domain.
-            The default identifiers are <b>.adot</b> and <b>.bdns</b> which are added at the end of the domain name or <b>a.</b> added in front. For example, by searching for either <b>alterdot.adot</b>, <b>alterdot.bdns</b> or <b>a.alterdot</b> you will be taken to the "alterdot" domain registered on our BlockchainDNS.
-            If you want to access a normal domain with the name "a", e.g. "a.com", disable Alterdot routing in your browser extension popup.
-        </div>
+            There are three default identifiers, <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>a.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>a.bitcoin</b> you will be taken to the "bitcoin" domain registered on our BlockchainDNS.
+            If you want to access a normal domain with the name "a", e.g. "a.com", disable Intercepted Search in the main extension popup.<br><br>
+            &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you have to add "/" at the end of the domain request like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that <b>a.bitcoin/</b> format is <b>not</b> supported.
+        </div><!-- TODO_ADOT_HIGH add extra explanations -->
         <div class="settings-row">
             <div class="column">
                 <span>Custom Access Identifier</span>

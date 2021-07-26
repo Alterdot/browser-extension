@@ -68,7 +68,6 @@ function init() {
         if (searchBar) {
             searchBar.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
-                    console.log("toolbar searched value: ", searchBar.value);
                     let domain = searchBar.value;
                     searchBar.value = null;
 
