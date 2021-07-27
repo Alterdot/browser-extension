@@ -9,52 +9,84 @@
 </head>
 <body>
 <div class="main-container">
-    <span class="welcome-text">Alterdot Settings</span>
-    <img class="alterdot-logo" src="alterdot256.png">
+    <div class="title-section">
+        <img class="alterdot-logo" src="alterdot256.png">
+        <span class="title-text">Extension Settings</span>
+    </div>
     <form id="settings-form">
-        <div class="settings-row">
-            <div>
-                Here you can configure your connections to the Alterdot and IPFS networks and more. If this is the first time you see this page, you have to read the paragraphs below.
+        <div class="explain-fragment">
+            &emsp;&emsp;Here you can configure your connections to the Alterdot and IPFS networks and more. Setting up your browser extension correctly is a must if you want to take advantage of a fully decentralized experience. If you just want to browse the Alterdot web without hosting a local wallet or an IPFS node you can skip straight to the section about Alterdot Domain Identifiers.
+        </div>
+        <div class="settings-row colored">
+            <div class="column">
+                <span class="upper-text">Wallet RPC Port</span>
+                <span class="lower-text">Set the port used by your desktop wallet for JSON-RPC calls. It is found under rpcport in your alterdot.conf file, by default the desktop wallet sets it to 31050.</span>
             </div>
-            <div class="debug-section">
-                <input type="checkbox" name="use-debug">
-                <label for="use-debug">Use Debugging</label>
-            </div>
+            <input class="settings-input" type="number" min="0" max="65535" step="1" name="wallet-port">
         </div>
         <div class="settings-row">
-            <span>Wallet RPC Port</span>
-            <input class="settings-input" type="text" name="wallet-port">
-        </div>
-        <div class="settings-row">
-            <span>Wallet RPC Username</span>
+            <div class="column">
+                <span class="upper-text">Wallet RPC Username</span>
+                <span class="lower-text">Set the username used by your desktop wallet for JSON-RPC calls. It is found under rpcuser in your alterdot.conf file, by default the wallet generates a random username.</span>
+            </div>
             <input class="settings-input" type="text" name="wallet-user">
         </div>
-        <div class="settings-row">
-            <span>Wallet RPC Password</span>
+        <div class="settings-row colored">
+            <div class="column">
+                <span class="upper-text">Wallet RPC Password</span>
+                <span class="lower-text">Set the password used by your desktop wallet for JSON-RPC calls. It is found under rpcpassword in your alterdot.conf file, by default the wallet generates a random password. This is not your wallet passphrase!</span>
+            </div>
             <input class="settings-input" type="text" name="wallet-pass">
         </div>
         <div class="settings-row">
-            <span>IPFS Local Gateway Port</span>
-            <input class="settings-input" type="text" name="ipfs-port">
+            <div class="column">
+                <span class="upper-text">IPFS Local Gateway Port</span>
+                <span class="lower-text">The port used by your local IPFS gateway. This can be found in the IPFS Companion under gateway, by default it gets set to 8080, if that one is used then 8081. If you're using Brave this port is usually set to 48084.</span>
+            </div>
+            <input class="settings-input" type="number" min="0" max="65535" step="1" name="ipfs-port">
         </div>
-        <div class="settings-row delimited-row-title">
-            <span>Alterdot Domain Access Identifiers</span>
+        <div class="settings-row delimited-row-title colored">
+            <span class="upper-text">Alterdot Domain Identifiers</span>
         </div>
         <div class="explain-fragment">
             &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for an Alterdot domain.
-            There are three default identifiers, <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>a.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>a.bitcoin</b> you will be taken to the "bitcoin" domain registered on our BlockchainDNS.
-            If you want to access a normal domain with the name "a", e.g. "a.com", disable Intercepted Search in the main extension popup.<br><br>
-            &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you have to add "/" at the end of the domain request like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that <b>a.bitcoin/</b> format is <b>not</b> supported.
-        </div><!-- TODO_ADOT_HIGH add extra explanations -->
+            There are three default identifiers: <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>a.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>a.bitcoin</b> you will be taken to the <b>bitcoin</b> domain registered on our BlockchainDNS.
+            The last format interferes with normal domains named <b>a</b>, e.g. <b>a.com</b>, so if you want to access them, disable Intercepted Search in the main extension popup.
+        </div>
+        <div class="explain-fragment colored">
+            &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you have to add <b>/</b> at the end of the domain request like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that <b>a.bitcoin/</b> format is <b>not</b> supported.
+        </div>
         <div class="settings-row">
             <div class="column">
-                <span>Custom Access Identifier</span>
-                <span class="under-text">Create your own custom identifier here, by default ".chain" can also be used for addressing, change it to anything you want.</span>
+                <span class="upper-text">Custom Access Identifier</span>
+                <span class="lower-text">Create your own custom identifier here, by default ".chain" can also be used for addressing, change it to anything you want.</span>
             </div>
             <input class="settings-input" type="text" name="custom-identifier">
         </div>
+        <div class="settings-row">
+            <div class="column">
+                <span class="upper-text">Use Debugging</span>
+                <span class="lower-text">Enabling this results in numerous debug messages being logged in the console. If you encounter any problem while using the browser extension, you should report it to the developers. Using this Debug feature might be requested in order to correctly identify the problem.</span>
+            </div>
+            <div class="switch-container">
+                <label class="switch">
+                    <input type="checkbox" id="intercepted-search-toggle" name="use-debug">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
     </form>
-    <button id="save-button">Save</button>  
+    <button id="save-button">Save</button>
+    <!--
+    Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com 
+    License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) 
+    -->
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="check-circle" class="save-result success svg-inline--fa fa-check-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+       <path fill="currentColor" d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"></path>
+    </svg>
+    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times-circle" class="save-result fail svg-inline--fa fa-times-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"></path>
+    </svg>
 </div>
 </body>
 </html>

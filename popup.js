@@ -140,15 +140,18 @@ function executeOperation() {
         case "send":
             let address = document.forms["wallet-action-form"]["address"].value;
             let amount = document.forms["wallet-action-form"]["amount"].value;
-            
+
             amount = parseFloat(amount);
 
-            if (typeof amount !== "number") {
-                // error
+            if (typeof amount !== "number" || isNaN(amount)) {
+                displayNotification("error", "The sent amount must be a number.");
                 return;
             }
 
-            // TODO_ADOT_MEDIUM validations
+            if (address.length != 34) {
+                displayNotification("error", "The inserted address doesn't have the mandatory length of 34 characters.");
+                return;
+            }
 
             command = "sendtoaddress";
             params = [address, amount];
@@ -157,7 +160,15 @@ function executeOperation() {
             let domainNameReg = document.forms["wallet-action-form"]["domain"].value;
             let ipfsHashReg = document.forms["wallet-action-form"]["hash"].value;
 
-            // TODO_ADOT_MEDIUM validations
+            if (domainNameReg.indexOf('/') > -1 || domainNameReg.indexOf(' ') > -1) {
+                displayNotification("error", "Domain names should not contain the '/' character or spaces, certain functionalities might fail. You can override this by using your wallet to register the domain.");
+                return;
+            }
+
+            if (ipfsHashReg.length < 46) {
+                displayNotification("error", "The inserted IPFS/IPNS hash must have at least 46 characters.");
+                return;
+            }
 
             command = "registerdomain";
             params = [domainNameReg, ipfsHashReg];
@@ -166,7 +177,10 @@ function executeOperation() {
             let domainNameUpd = document.forms["wallet-action-form"]["domain"].value;
             let ipfsHashUpd = document.forms["wallet-action-form"]["hash"].value;
 
-            // TODO_ADOT_MEDIUM validations
+            if (ipfsHashUpd.length < 46) {
+                displayNotification("error", "The inserted IPFS/IPNS hash must have at least 46 characters.");
+                return;
+            }
 
             command = "updatedomain";
             params = [domainNameUpd, ipfsHashUpd];
@@ -177,12 +191,10 @@ function executeOperation() {
 
             duration = parseInt(duration);
 
-            if (typeof duration !== "number") {
-                // error
+            if (!Number.isInteger(duration)) {
+                displayNotification("error", "The set duration must be an integer number.");
                 return;
             }
-
-            // TODO_ADOT_MEDIUM validations
 
             command = "walletpassphrase";
             params = [password, duration];
