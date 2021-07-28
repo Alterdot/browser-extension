@@ -1,4 +1,21 @@
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: url('Lato-Regular.ttf') format('truetype');
+    /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: bold;
+    font-weight: 700;
+    src: url('Lato-Bold.ttf') format('truetype');
+    /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
+}
+
 body {
+    font-family: 'Lato';
     display: flex;
     flex-flow: column;
     align-items: center;
@@ -50,19 +67,24 @@ body {
     border: unset;
     color: white;
     height: 42px;
-    width: 24%;
+    width: 100%;
     font-size: 24px;
     outline: unset;
     transition: all 0.2s;
 }
 
+.save-section {
+    width: 220px;
+    height: 80px;
+}
+
 #save-button:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
 }
 
 #save-button:active {
     background-color: #E02E22;
-    transform: scale(0.98);
+    transform: scale(0.99);
 }
 
 .settings-row {
@@ -85,13 +107,22 @@ body {
     border-radius: 8px;
 }
 
+.settings-input-container {
+    width: 40%;
+}
+
 .settings-input {
     background-color: #fbfbfb;
     border-radius: 4px;
     border: 2px solid transparent;
-    height: 24px;
-    width: 40%;
+    height: 28px;
+    width: 100%;
     outline: none;
+    box-sizing: border-box;
+}
+
+.settings-input.error {
+    border-color: #e61e1e;
 }
 
 .explain-fragment {
@@ -187,44 +218,31 @@ input:checked+.slider:before {
 }
 
 .save-result {
+    display: block;
     width: 0px;
     position: relative;
-    transition: transform 0.4s ease;
+    transition: transform 0.4s ease, width 0.4s ease, height 0.4s ease;
     z-index: -1;
     top: -41px;
-    left: 86px;
+    left: 170px;
 }
 
 .save-result.success {
     color: #2d942d;
 }
 
-.save-result.fail {
+.save-result.error {
     color: #e61e1e;
 }
 
 .save-result.active {
-    width: 40px;
-    -moz-animation: saveAnimation 5s ease-in 0s forwards;
-    /* Firefox */
-    -webkit-animation: saveAnimation 5s ease-in 0s forwards;
-    /* Safari and Chrome */
-    -o-animation: saveAnimation 5s ease-in 0s forwards;
-    /* Opera */
-    animation: saveAnimation 5s ease-in 0s forwards;
-    -webkit-animation-fill-mode: forwards;
-    animation-fill-mode: forwards;
+    width: 40px !important;
+    transform: translateX(70px) !important;
 }
 
-@keyframes saveAnimation {
-    0%      { left: 86px; }
-    15%     { left: 156px; }
-    85%     { left: 156px; }
-    100%    { left: 86px; }
-}
-@-webkit-keyframes saveAnimation {
-    0%      { left: 86px; }
-    15%     { left: 156px; }
-    85%     { left: 156px; }
-    100%    { left: 86px; }
+.error-container {
+    color: #e61e1e;
+    font-size: 14px;
+    margin-top: 4px;
+    padding: 0px 4px;
 }

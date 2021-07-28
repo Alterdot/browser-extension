@@ -58,7 +58,7 @@ function sendCommand(url, command, params, handleSuccess, handleFail, useDebug =
                 try {
                     let parsed = JSON.parse(response);
 
-                    if (parsed && parsed['result']) {        
+                    if (parsed && (parsed['result'] || parsed['result'] === false || parsed['result'] === 0)) {        
                         response = parsed['result'];
                     } else {
                         response = parsed;

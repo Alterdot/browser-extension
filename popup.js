@@ -92,6 +92,8 @@ function processLatestTransactions(latestTransactions = []) {
                 txType.style.color = "rgb(192, 192, 192)";
             }
         }
+    } else {
+        document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
 }
 
@@ -226,7 +228,7 @@ function executeOperation() {
 
 // type can be success, error or info
 function displayNotification(type, message) {
-    // ensures that the notification will not be cleared if a new error popped up and the last one has a running timer
+    // ensures that the notification will not be cleared if a new notification popped up and the last one has a running timer
     clearTimeout(state.notifTimer);
 
     let notification = document.getElementById("notification");

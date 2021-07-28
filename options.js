@@ -4,6 +4,7 @@ var state = {
     rpcPass: "pass",
     rpcPort: "31050",
     ipfsPort: "8081",
+    saveResultTimer: null, // handler of save result timeout
     customIdentifier: "chain",
     ready: 0 // ready on 6
 };
@@ -58,15 +59,112 @@ function syncState() {
     });
 }
 
-function saveSettings() {
-    // TODO_ADOT_MEDIUM validations
+function validateSimpleString(str) {
+    return str.match("^[A-Za-z0-9]+$");
+}
 
-    chrome.storage.sync.set({ "rpcPort": document.forms["settings-form"]["wallet-port"].value });
-    chrome.storage.sync.set({ "rpcUser": document.forms["settings-form"]["wallet-user"].value });
-    chrome.storage.sync.set({ "rpcPass": document.forms["settings-form"]["wallet-pass"].value });
-    chrome.storage.sync.set({ "ipfsPort": document.forms["settings-form"]["ipfs-port"].value });
-    chrome.storage.sync.set({ "customIdentifier": document.forms["settings-form"]["custom-identifier"].value });
-    chrome.storage.sync.set({ "useDebug": document.forms["settings-form"]["use-debug"].checked });
+function clearErrors() {
+    clearError(document.forms["settings-form"]["wallet-port"], "wallet-port-error");
+    clearError(document.forms["settings-form"]["wallet-user"], "wallet-user-error");
+    clearError(document.forms["settings-form"]["wallet-pass"], "wallet-pass-error");
+    clearError(document.forms["settings-form"]["ipfs-port"], "ipfs-port-error");
+    clearError(document.forms["settings-form"]["custom-identifier"], "custom-identifier-error");
+}
+
+function saveSettings() {
+    clearErrors();
+    let hasErrors = false;
+
+    let rpcPortField = document.forms["settings-form"]["wallet-port"];
+    let rpcPort = parseInt(rpcPortField.value);
+
+    if (typeof rpcPort !== "number" || isNaN(rpcPort)) {
+        displayError(rpcPortField, "wallet-port-error", "The port must be a number.");
+        hasErrors = true;
+    } else if (rpcPort < 0 || rpcPort > 65535) {
+        displayError(rpcPortField, "wallet-port-error", "Ports can have a value between 0 and 65335.");
+        hasErrors = true;
+    }
+
+    let rpcUserField = document.forms["settings-form"]["wallet-user"];
+
+    if (!validateSimpleString(rpcUserField.value)) {
+        displayError(rpcUserField, "wallet-user-error", "The RPC username must contain only letters and digits, special characters are not allowed.");
+        hasErrors = true;
+    }
+
+    let rpcPassField = document.forms["settings-form"]["wallet-pass"];
+
+    if (!validateSimpleString(rpcPassField.value)) {
+        displayError(rpcPassField, "wallet-pass-error", "The RPC password must contain only letters and digits, special characters are not allowed.");
+        hasErrors = true;
+    }
+
+    let ipfsPortField = document.forms["settings-form"]["ipfs-port"];
+    let ipfsPort = parseInt(ipfsPortField.value);
+
+    if (typeof ipfsPort !== "number" || isNaN(ipfsPort)) {
+        displayError(ipfsPortField, "ipfs-port-error", "The port must be a number.");
+        hasErrors = true;
+    } else if (ipfsPort < 0 || ipfsPort > 65535) {
+        displayError(ipfsPortField, "ipfs-port-error", "Ports can have a value between 0 and 65335.");
+        hasErrors = true;
+    }
+
+    let customIdField = document.forms["settings-form"]["custom-identifier"];
+
+    if (!validateSimpleString(customIdField.value)) {
+        displayError(customIdField, "custom-identifier-error", "The custom domain identifier must contain only letters and digits, special characters are not allowed.");
+        hasErrors = true;
+    }
+
+    if (!hasErrors) {
+        chrome.storage.sync.set({ "rpcPort": rpcPortField.value });
+        chrome.storage.sync.set({ "rpcUser": rpcUserField.value });
+        chrome.storage.sync.set({ "rpcPass": rpcPassField.value });
+        chrome.storage.sync.set({ "ipfsPort": ipfsPortField.value });
+        chrome.storage.sync.set({ "customIdentifier": customIdField.value });
+        chrome.storage.sync.set({ "useDebug": document.forms["settings-form"]["use-debug"].checked });
+        
+        saveResult("success");
+    } else {
+        saveResult("error");
+    }
+}
+
+function displayError(field, errorId, errMsg) {
+    document.getElementById(errorId).innerHTML = errMsg;
+    field.classList.add("error");
+}
+
+function clearError(field, errorId) {
+    document.getElementById(errorId).innerHTML = "";
+    field.classList.remove("error");
+}
+
+// type can be success or error
+function saveResult(type) {
+    // ensures that the save result will not be cleared if a new one popped up and the last result has a running timer
+    hideResult();
+
+    let result = document.querySelector(`.save-result.${type}`);
+
+    if (result) {
+        result.classList.add("active");
+    }
+
+    state.saveResultTimer = setTimeout(hideResult, 10000);
+}
+
+function hideResult() {
+    // the previous running timer is no longer needed
+    clearTimeout(state.saveResultTimer);
+
+    let result = document.querySelector('.save-result.active');
+    
+    if (result) {
+        result.classList.remove("active");
+    }
 }
 
 function fillInitialFormData() {
