@@ -10,7 +10,6 @@ var state = {
     rpcUser: "user",
     rpcPass: "pass",
     rpcPort: "31050",
-    ipfsPort: "8080",
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false
@@ -284,14 +283,6 @@ function updateOperation(operation) {
     document.forms["wallet-action-form"].reset();
     document.querySelector("#wallet-action-form .wallet-action:not(.invisible)").classList.toggle("invisible");
     document.querySelector(`#wallet-action-form .wallet-action.${selectedElement}-action`).classList.toggle("invisible");
-}
-
-function openSettings() {
-    if (chrome.runtime.openOptionsPage) {
-        chrome.runtime.openOptionsPage();
-    } else {
-        window.open(chrome.runtime.getURL('options.html'));
-    }
 }
 
 function syncState() {

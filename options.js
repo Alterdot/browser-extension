@@ -3,7 +3,7 @@ var state = {
     rpcUser: "user",
     rpcPass: "pass",
     rpcPort: "31050",
-    ipfsPort: "8081",
+    ipfsPort: "8080",
     saveResultTimer: null, // handler of save result timeout
     customIdentifier: "chain",
     ready: 0 // ready on 6

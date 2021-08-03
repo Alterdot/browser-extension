@@ -1,12 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Alterdot Browser Extension",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Redirects BDNS requests to IPFS and allows for simple wallet interaction.",
   "permissions": [
-    "file://*/*",
-    "*://*/*?q=*",
-    "*://*.bdns/*",
+    "*://*/*?q=.*",
+    "*://*/*?q=*.a*",
+    "*://*/*?q=*.adot*",
+    "*://*.a/*",
     "*://*.adot/*",
     "webRequest",
     "webRequestBlocking",

@@ -50,7 +50,7 @@
         <div class="settings-row">
             <div class="column">
                 <span class="upper-text">IPFS Local Gateway Port</span>
-                <span class="lower-text">The port used by your local IPFS gateway. This can be found in the IPFS Companion under gateway, by default it gets set to 8080, if that one is used then 8081. If you're using Brave this port is usually set to 48084.</span>
+                <span class="lower-text">The port used by your local IPFS gateway. This can be found in the IPFS Companion under Gateway, by default it is set to 8080 and if that one is used, it gets set to 8081. If you're using Brave this port is usually set to 48084.</span>
             </div>
             <div class="settings-input-container">
                 <input class="settings-input" type="number" min="0" max="65535" step="1" name="ipfs-port">
@@ -58,15 +58,15 @@
             </div>
         </div>
         <div class="settings-row delimited-row-title colored">
-            <span class="upper-text">Alterdot Domain Identifiers</span>
+            <span class="upper-text">Alterdot Domain Identifiers</span>Read this section!
         </div>
         <div class="explain-fragment">
-            &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for an Alterdot domain.
-            There are three default identifiers: <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>a.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>a.bitcoin</b> you will be taken to the <b>bitcoin</b> domain registered on our BlockchainDNS.
-            The last format interferes with normal domains named <b>a</b>, e.g. <b>a.com</b>, so if you want to access them, disable Intercepted Search in the main extension popup.
+            &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for such a domain.
+            There are three default identifiers: <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>.bitcoin</b> you will be taken to the <b>bitcoin</b> domain registered on our BlockchainDNS.
+            <br>&emsp;&emsp;The primary way of addressing a blockchain domain works by checking if the search query matches any of the aforementioned patterns. If you discover that it interferes with your usual web surfing, you can disable Intercepted Search in the main extension popup. Report your situation to our team so we can improve the experience with future updates.
         </div>
         <div class="explain-fragment colored">
-            &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you have to add <b>/</b> at the end of the domain request like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that <b>a.bitcoin/</b> format is <b>not</b> supported.
+            &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you will have to use the secondary way of addressing domains which is very similar, just add <b>/</b> at the end of the request, like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that the <b>.bitcoin/</b> format is <b>not</b> supported.
         </div>
         <div class="settings-row">
             <div class="column">
@@ -81,14 +81,17 @@
         <div class="settings-row">
             <div class="column">
                 <span class="upper-text">Use Debugging</span>
-                <span class="lower-text">Enabling this results in numerous debug messages being logged in the console. If you encounter any problem while using the browser extension, you should report it to the developers. Using this Debug feature might be requested in order to correctly identify the problem.</span>
+                <span class="lower-text">Enabling this results in numerous debug messages being logged in the browser console. If you encounter any problem while using the browser extension, you should report it to the developers. Using this Debug feature might be requested in order to correctly identify the problem.</span>
             </div>
-            <div class="switch-container">
+            <div class="settings-input-container">
                 <label class="switch">
                     <input type="checkbox" id="intercepted-search-toggle" name="use-debug">
                     <span class="slider round"></span>
                 </label>
             </div>
+        </div>
+        <div class="explain-fragment">
+            &emsp;&emsp;<b>Disclaimer!</b> This software is open-source and operates under an MIT License. We cannot be held accountable for any liabilities caused by its usage. If you do not host an Alterdot node, then you rely on our infrastructure and so the searched queries that fit the patterns mentioned above will be sent to our servers but we do not keep any user-specific information. We might create statistics for the most requested domains, but otherwise we do not collect any data from your search queries as processing is done in your browser.
         </div>
     </form>
     <div class="save-section">

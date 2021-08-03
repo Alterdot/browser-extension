@@ -229,7 +229,7 @@ function redirectAlterdotDomainInterceptedSearch(request) {
 
     if (supportedIdentifiers.includes(domainParts[domainParts.length - 1])) {
         domainParts.pop();
-    } else if (domainParts[0] == 'a') {
+    } else if (domainParts[0] === "") {
         domainParts.shift();
     } else {
         return;
@@ -333,7 +333,7 @@ function renewDefaultInterceptedSearch() {
     browser.webRequest.onBeforeRequest.removeListener(redirectAlterdotDomainInterceptedSearch);
 
     browser.webRequest.onBeforeRequest.addListener(redirectAlterdotDomainInterceptedSearch,
-        { urls: ["*://*/*?q=*.a*", "*://*/*?q=*.adot*", "*://*/*?q=a.*"] }, ["blocking"]);
+        { urls: ["*://*/*?q=*.a*", "*://*/*?q=*.adot*", "*://*/*?q=.*"] }, ["blocking"]);
 }
 
 // removes the old listener if any and adds a new one
@@ -345,6 +345,12 @@ function renewDefaultOnErrorRedirect() {
 }
 
 function init() {
+    chrome.runtime.onInstalled.addListener(function (object) {
+        if (object.reason === "install") {
+            openSettings();
+        }
+    });
+
     syncState();
 
     // state changes listener

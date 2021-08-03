@@ -111,3 +111,11 @@ function processRequestFail(useDebug, reqStatus, errMessage, details) {
         console.log(`The request with details "${details}" failed with status code ${reqStatus} and error message "${errMessage}".`);
     }
 }
+
+function openSettings() {
+    if (chrome.runtime.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+    } else {
+        window.open(chrome.runtime.getURL('options.html'));
+    }
+}
