@@ -19,19 +19,19 @@ function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
     let initialView = document.getElementById("home-container");
     let walletView = document.getElementById("wallet-container");
-    
+
     if (changeViewText.innerHTML == "Wallet") {
         initialView.style.display = "none";
         walletView.style.display = "flex";
         changeViewText.innerHTML = "Home";
-        
+
         state.walletOpen = true;
         loopRefreshWallet();
     } else if (changeViewText.innerHTML == "Home") {
         initialView.style.display = "flex";
         walletView.style.display = "none";
         changeViewText.innerHTML = "Wallet";
-        
+
         state.walletOpen = false;
     }
 }
@@ -44,10 +44,15 @@ function refreshBalance(value) {
 }
 
 function processLatestTransactions(latestTransactions = []) {
+
     if (latestTransactions.length >= 1) {
-        for (let i = latestTransactions.length - 1; i >= 0; i--) {
-            txInfo = document.getElementById("tx-info-" + (latestTransactions.length - 1 - i));
-            txType = document.getElementById("tx-type-" + (latestTransactions.length - 1 - i));
+        let divNumber = 0;
+        //TODO add date-time to the transaction to be more precise about the ordering ?
+        for (let i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
+
+            createDivForTransaction(divNumber);
+            let txInfo = document.getElementById("tx-info-" + divNumber);
+            let txType = document.getElementById("tx-type-" + divNumber);
 
             txInfo.innerHTML = ((latestTransactions[i].amount * 100) / 100).toFixed(2) + " to ";
 
@@ -57,19 +62,23 @@ function processLatestTransactions(latestTransactions = []) {
 
             txInfo.innerHTML += "<br>";
 
-            if (latestTransactions[i].address !== undefined) {
-                txInfo.innerHTML += latestTransactions[i].address;
-            } else if (latestTransactions[i].category == "send") {
-                if (latestTransactions[i].amount === -0.1 && latestTransactions[i].fee === -0.1) {
+            const currentTransactionAddress = latestTransactions[i].address;
+            const transactionCategory = latestTransactions[i].category;
+
+            if (currentTransactionAddress !== undefined) {
+                txInfo.innerHTML += currentTransactionAddress;
+            } else if (transactionCategory == "send") {
+                const currentTransactionAmount = latestTransactions[i].amount;
+                if (currentTransactionAmount === -0.1 && latestTransactions[i].fee === -0.1) {
                     txInfo.innerHTML += "BlockchainDNS Registration";
-                    
+
                     txType.innerHTML = "REG";
                     txType.style.color = "rgb(30, 118, 210)";
 
                     continue;
-                } else if (latestTransactions[i].amount === -0.005 && latestTransactions[i].fee === -0.005) {
+                } else if (currentTransactionAmount === -0.005 && latestTransactions[i].fee === -0.005) {
                     txInfo.innerHTML += "BlockchainDNS Update";
-                    
+
                     txType.innerHTML = "UPD";
                     txType.style.color = "rgb(30, 118, 210)";
 
@@ -77,37 +86,79 @@ function processLatestTransactions(latestTransactions = []) {
                 }
             }
 
-            if (latestTransactions[i].category == "generate" || latestTransactions[i].category == "receive") {
-                txType.innerHTML = "IN";
-                txType.style.color = "rgb(50, 205, 50)";
-            } else if (latestTransactions[i].category === "send") {
-                txType.innerHTML = "OUT";
-                txType.style.color = "rgb(255, 0, 0)";
-            } else if (latestTransactions[i].category == "immature") {
-                txType.innerHTML = "IMM";
-                txType.style.color = "rgb(192, 192, 192)";
-            } else if (latestTransactions[i].category == "orphan") {
-                txType.innerHTML = "OPH";
-                txType.style.color = "rgb(192, 192, 192)";
+            switch (transactionCategory) {
+                case "generate": case "receive":
+                    txType.innerHTML = "&#8592;";
+                    txType.style.color = "rgb(50, 205, 50)";
+                    break;
+                case "send":
+                    if (isToSelf(i, currentTransactionAddress)) {
+                        txType.innerHTML = "&#8651;";
+                        txType.style.color = "rgb(138,43,226)";
+                        i--;
+                    } else {
+                        txType.innerHTML = "&#8594;";
+                        txType.style.color = "rgb(255, 0, 0)";
+                    }
+                    break;
+                case "immature":
+                    txType.innerHTML = "IMM";
+                    txType.style.color = "rgb(192, 192, 192)";
+                    break;
+                case "orphan":
+                    txType.innerHTML = "OPH";
+                    txType.style.color = "rgb(192, 192, 192)";
+                    break
+                default:
+                    txType.innerHTML = "ERR";
+                    txType.style.color = "rgb(255, 0, 0)";
             }
         }
     } else {
         document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
+
+    function isGenerateOrReceive(transactionIndex) {
+        const currentTransactionCategory = latestTransactions[transactionIndex].category;
+        return currentTransactionCategory == "generate" || currentTransactionCategory == "receive";
+    }
+
+    function isToSelf(transactionIndex, currentTransactionAddress) {
+        return transactionIndex >= 1 && isGenerateOrReceive(transactionIndex - 1) &&
+            currentTransactionAddress == latestTransactions[transactionIndex - 1].address;
+    }
+
+    function createDivForTransaction(index) {
+        if (document.getElementById("th" + index) != null)
+            return;
+
+        var div = document.createElement('div');
+        div.id = "th" + index;
+        div.className = "transaction";
+
+        div.appendChild(createGenericDiv(index, "tx-type"));
+        div.appendChild(createGenericDiv(index, "tx-info"));
+
+        document.getElementById('transactions-container').appendChild(div);
+    }
+
+    function createGenericDiv(i, tx_data) {
+        var tx = document.createElement('div');
+        tx.id = tx_data + "-" + i;
+        tx.className = tx_data;
+        return tx;
+    }
 }
 
 function updateDecentralized() {
-    if (state.onlineADOT && state.onlineIPFS) {
-        decentContainer = document.getElementsByClassName("decent-container")[0];
-        decentText = document.getElementsByClassName("decent-text")[0];
+    let decentContainer = document.getElementsByClassName("decent-container")[0];
+    let decentText = document.getElementsByClassName("decent-text")[0];
 
+    if (state.onlineADOT && state.onlineIPFS) {
         decentContainer.style.transition = "background-color 1.5s ease"; // add the transition effect only when first changing the Decentralized status 
         decentContainer.style.backgroundColor = "rgba(44, 175, 44, 0.8)";
         decentText.style.color = "rgba(255, 255, 255, 0.9)";
     } else {
-        decentContainer = document.getElementsByClassName("decent-container")[0];
-        decentText = document.getElementsByClassName("decent-text")[0];
-
         decentContainer.style.transition = "background-color 1.5s ease";
         decentContainer.style.backgroundColor = "rgba(162, 162, 162, 0.2)";
         decentText.style.color = "rgba(162, 162, 162, 0.6)";
@@ -213,7 +264,7 @@ function executeOperation() {
     sendCommand(url, command, params, (message) => {
         if (command == "walletpassphrase") { // only possible operation that doesn't return a txHash
             displayNotification("success", "Wallet unlocked successfully!");
-        } else { 
+        } else {
             displayNotification("success", `Transaction succeeded with hash: ${message}`);
         }
     }, (reqStatus, errMessage) => {
@@ -232,7 +283,7 @@ function displayNotification(type, message) {
 
     let notification = document.getElementById("notification");
     let notifText = document.getElementById("text-notif");
-    
+
     notification.classList.add(type);
     notifText.innerHTML = message;
 
@@ -247,7 +298,7 @@ function hideNotification() {
 
     let notification = document.getElementById("notification");
     let notifText = document.getElementById("text-notif");
-    
+
     notification.classList.remove("visible");
 
     // transition delay
@@ -264,7 +315,7 @@ async function loopRefreshWallet() {
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", 6, 0], processLatestTransactions, (reqStatus, errMessage) => {
+        sendCommand(url, "listtransactions", ["*", 100, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet listtransactions");
         }, state.useDebug);
 
@@ -279,7 +330,7 @@ function updateOperation(operation) {
     if (selectedElement === "update") {
         selectedElement = "register";
     }
-    
+
     document.forms["wallet-action-form"].reset();
     document.querySelector("#wallet-action-form .wallet-action:not(.invisible)").classList.toggle("invisible");
     document.querySelector(`#wallet-action-form .wallet-action.${selectedElement}-action`).classList.toggle("invisible");
@@ -292,41 +343,41 @@ function syncState() {
 
             doWhenDOMReady(updateAdotStatus);
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("onlineIPFS", function (result) {
         if (result) {
             state.onlineIPFS = result["onlineIPFS"];
-            
+
             doWhenDOMReady(updateIpfsStatus);
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcPort", function (result) {
         if (result && result["rpcPort"]) {
             state.rpcPort = result["rpcPort"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcUser", function (result) {
         if (result && result["rpcUser"]) {
             state.rpcUser = result["rpcUser"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcPass", function (result) {
         if (result && result["rpcPass"]) {
             state.rpcPass = result["rpcPass"];
         }
-    
+
         state.ready++;
     });
 
@@ -334,10 +385,10 @@ function syncState() {
         if (result && "useDebug" in result) {
             state.useDebug = result["useDebug"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("useInterceptedSearch", function (result) {
         if (result && "useInterceptedSearch" in result) {
             state.useInterceptedSearch = result["useInterceptedSearch"];
@@ -348,7 +399,7 @@ function syncState() {
                 }
             });
         }
-    
+
         state.ready++;
     });
 
@@ -375,7 +426,7 @@ function doWhenDOMReady(action, noTry = 0) {
         setTimeout(() => {
             doWhenDOMReady(action, noTry++);
         }, 100);
-    
+
         return;
     }
 
@@ -387,7 +438,7 @@ function processUpdatedStorageElement(name, value) {
         console.log(`Warning: In popup, the old value of ${name} in state doesn't match the old value from storage.`);
 
     state[name] = value.newValue;
-    
+
     switch (name) {
         case "onlineADOT":
             doWhenDOMReady(updateAdotStatus);
@@ -446,36 +497,36 @@ function init() {
                 if (state.useDebug) {
                     console.log(`storage ${key} changed`);
                 }
-    
+
                 if (Object.keys(state).includes(key)) {
                     processUpdatedStorageElement(key, changes[key]);
                 }
             }
         }
     });
-    
+
     document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             document.getElementsByTagName("body")[0].classList.remove("on-init");
         }, 400); // transitions are cancelled on popup initialization
-    
+
         state.readyDOM = true;
-    
+
         document.getElementById("execute-button").addEventListener("click", executeOperation);
         document.getElementById("toolbar-button").addEventListener("click", toggleToolbar);
         document.getElementById("settings-button").addEventListener("click", openSettings);
         document.getElementById("intercepted-search-toggle").addEventListener("click", toggleInterceptedSearch);
         document.querySelector('#close-notif').addEventListener("click", hideNotification);
-    
+
         document.querySelector('.action-select-wrapper').addEventListener('click', function () {
             this.querySelector('.action-select').classList.toggle('open');
         });
-    
+
         for (const option of document.querySelectorAll(".action-option")) {
             option.addEventListener('click', function () {
                 if (!this.classList.contains('selected')) {
                     updateOperation(this.dataset.value);
-    
+
                     this.parentNode.querySelector('.action-option.selected').classList.remove('selected');
                     this.classList.add('selected');
                     this.closest('.action-select').querySelector('.action-select__trigger span').textContent = this.textContent;
