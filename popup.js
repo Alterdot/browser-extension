@@ -12,8 +12,11 @@ var state = {
     rpcPort: "31050",
     ready: 0, // ready on 8
     readyDOM: false,
-    useDebug: false
+    useDebug: false,
+    transactionsReturned: 20
 }
+
+var scrollEventListenerAdded = false
 
 function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
@@ -44,6 +47,10 @@ function refreshBalance(value) {
 }
 
 function processLatestTransactions(latestTransactions = []) {
+
+    if (!scrollEventListenerAdded) {
+        addScrollListener();
+    }
 
     if (latestTransactions.length >= 1) {
         let divNumber = 0;
@@ -123,8 +130,8 @@ function processLatestTransactions(latestTransactions = []) {
     function isToSelf(transactionIndex, currentTransactionAddress, currentTransactionAmount) {
         return transactionIndex >= 1 &&
             currentTransactionAddress == latestTransactions[transactionIndex - 1].address &&
-            Math.abs(currentTransactionAmount) == 
-                Math.abs(latestTransactions[transactionIndex - 1].amount);
+            Math.abs(currentTransactionAmount) ==
+            Math.abs(latestTransactions[transactionIndex - 1].amount);
     }
 
     function createTxContainerDiv(index) {
@@ -147,6 +154,17 @@ function processLatestTransactions(latestTransactions = []) {
         tx.id = tx_data + "-" + i;
         tx.className = tx_data;
         return tx;
+    }
+
+    function addScrollListener() {
+        document.getElementById("transactions-container")
+            .addEventListener('scroll', function (event) {
+                var element = event.target;
+                if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+                    state.transactionsReturned = state.transactionsReturned + 10;
+                    setTimeout(loopRefreshWallet, 10);
+                }
+            });
     }
 }
 
@@ -309,13 +327,14 @@ function hideNotification() {
 }
 
 async function loopRefreshWallet() {
+
     if (state.walletOpen === true) {
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
 
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", 100, 0], processLatestTransactions, (reqStatus, errMessage) => {
+        sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet listtransactions");
         }, state.useDebug);
 

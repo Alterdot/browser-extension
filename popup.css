@@ -404,6 +404,22 @@ input[type=number] {
     font-size: 18px;
 }
 
+.load-more-button {
+    display: flex;
+    color:rgb(54, 121, 197);
+    border: none;
+    margin:auto;
+    margin-top: 5px;
+    background:inherit;
+}
+
+.load-more-button:hover {
+    font-weight: 900;
+ }
+ .load-more-button::before {
+    content: "&#8681;";
+  }
+/* Remove this styling if we keep the # */
 .transactions-container {
     width: 340px;
     flex-flow: column;
@@ -681,9 +697,9 @@ input:checked+.slider:before {
 
 #transactions-container {
     width: 340px;
+    height:259px;
     flex-flow: column;
     align-items: center;
     margin-top: auto;
-    height:259px;
     overflow:scroll; 
 }
