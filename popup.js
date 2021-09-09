@@ -47,36 +47,38 @@ function processLatestTransactions(latestTransactions = []) {
 
     if (latestTransactions.length >= 1) {
         let divNumber = 0;
-        //TODO add date-time to the transaction to be more precise about the ordering ?
+        //TODO_ADOT_LOW add date-time to the transaction to be more precise about the ordering ?
         for (let i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
 
-            createDivForTransaction(divNumber);
+            const address = latestTransactions[i].address;
+            const category = latestTransactions[i].category;
+            const amount = latestTransactions[i].amount;
+            const fee = latestTransactions[i].fee;
+            const account = latestTransactions[i].account;
+
+            createTxContainerDiv(divNumber);
             let txInfo = document.getElementById("tx-info-" + divNumber);
             let txType = document.getElementById("tx-type-" + divNumber);
 
-            txInfo.innerHTML = ((latestTransactions[i].amount * 100) / 100).toFixed(2) + " to ";
+            txInfo.innerHTML = ((amount * 100) / 100).toFixed(2) + " to ";
 
-            if (latestTransactions[i].account != "") {
-                txInfo.innerHTML += " " + latestTransactions[i].account;
+            if (account != "") {
+                txInfo.innerHTML += " " + account;
             }
 
             txInfo.innerHTML += "<br>";
 
-            const currentTransactionAddress = latestTransactions[i].address;
-            const transactionCategory = latestTransactions[i].category;
-
-            if (currentTransactionAddress !== undefined) {
-                txInfo.innerHTML += currentTransactionAddress;
-            } else if (transactionCategory == "send") {
-                const currentTransactionAmount = latestTransactions[i].amount;
-                if (currentTransactionAmount === -0.1 && latestTransactions[i].fee === -0.1) {
+            if (address !== undefined) {
+                txInfo.innerHTML += address;
+            } else if (category == "send") {
+                if (amount === -0.1 && fee === -0.1) {
                     txInfo.innerHTML += "BlockchainDNS Registration";
 
                     txType.innerHTML = "REG";
                     txType.style.color = "rgb(30, 118, 210)";
 
                     continue;
-                } else if (currentTransactionAmount === -0.005 && latestTransactions[i].fee === -0.005) {
+                } else if (amount === -0.005 && fee === -0.005) {
                     txInfo.innerHTML += "BlockchainDNS Update";
 
                     txType.innerHTML = "UPD";
@@ -86,13 +88,13 @@ function processLatestTransactions(latestTransactions = []) {
                 }
             }
 
-            switch (transactionCategory) {
+            switch (category) {
                 case "generate": case "receive":
                     txType.innerHTML = "&#8592;";
                     txType.style.color = "rgb(50, 205, 50)";
                     break;
                 case "send":
-                    if (isToSelf(i, currentTransactionAddress)) {
+                    if (isToSelf(i, address, amount)) {
                         txType.innerHTML = "&#8651;";
                         txType.style.color = "rgb(138,43,226)";
                         i--;
@@ -118,31 +120,29 @@ function processLatestTransactions(latestTransactions = []) {
         document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
 
-    function isGenerateOrReceive(transactionIndex) {
-        const currentTransactionCategory = latestTransactions[transactionIndex].category;
-        return currentTransactionCategory == "generate" || currentTransactionCategory == "receive";
+    function isToSelf(transactionIndex, currentTransactionAddress, currentTransactionAmount) {
+        return transactionIndex >= 1 &&
+            currentTransactionAddress == latestTransactions[transactionIndex - 1].address &&
+            Math.abs(currentTransactionAmount) == 
+                Math.abs(latestTransactions[transactionIndex - 1].amount);
     }
 
-    function isToSelf(transactionIndex, currentTransactionAddress) {
-        return transactionIndex >= 1 && isGenerateOrReceive(transactionIndex - 1) &&
-            currentTransactionAddress == latestTransactions[transactionIndex - 1].address;
-    }
-
-    function createDivForTransaction(index) {
-        if (document.getElementById("th" + index) != null)
+    function createTxContainerDiv(index) {
+        const newDivId = "tx-" + index;
+        if (document.getElementById(newDivId) != null)
             return;
 
         var div = document.createElement('div');
-        div.id = "th" + index;
+        div.id = newDivId;
         div.className = "transaction";
 
-        div.appendChild(createGenericDiv(index, "tx-type"));
-        div.appendChild(createGenericDiv(index, "tx-info"));
+        div.appendChild(createTxInnerDiv(index, "tx-type"));
+        div.appendChild(createTxInnerDiv(index, "tx-info"));
 
         document.getElementById('transactions-container').appendChild(div);
     }
 
-    function createGenericDiv(i, tx_data) {
+    function createTxInnerDiv(i, tx_data) {
         var tx = document.createElement('div');
         tx.id = tx_data + "-" + i;
         tx.className = tx_data;
