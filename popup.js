@@ -13,10 +13,8 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturned: 20
+    transactionsReturned: 20    
 }
-
-var scrollEventListenerAdded = false
 
 function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
@@ -29,7 +27,9 @@ function toggleWallet() {
         changeViewText.innerHTML = "Home";
 
         state.walletOpen = true;
-        loopRefreshWallet();
+        refreshWallet();
+        addScrollListener();
+        setInterval(refreshWallet, 4000);
     } else if (changeViewText.innerHTML == "Home") {
         initialView.style.display = "flex";
         walletView.style.display = "none";
@@ -46,11 +46,18 @@ function refreshBalance(value) {
     }
 }
 
-function processLatestTransactions(latestTransactions = []) {
+function addScrollListener() {
+    document.getElementById("transactions-container")
+        .addEventListener('scroll', function (event) {
+            var element = event.target;
+            if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+                state.transactionsReturned = state.transactionsReturned + 10;
+                refreshWallet();
+            }
+        });
+}
 
-    if (!scrollEventListenerAdded) {
-        addScrollListener();
-    }
+function processLatestTransactions(latestTransactions = []) {
 
     if (latestTransactions.length >= 1) {
         let divNumber = 0;
@@ -154,17 +161,6 @@ function processLatestTransactions(latestTransactions = []) {
         tx.id = tx_data + "-" + i;
         tx.className = tx_data;
         return tx;
-    }
-
-    function addScrollListener() {
-        document.getElementById("transactions-container")
-            .addEventListener('scroll', function (event) {
-                var element = event.target;
-                if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-                    state.transactionsReturned = state.transactionsReturned + 10;
-                    setTimeout(loopRefreshWallet, 10);
-                }
-            });
     }
 }
 
@@ -326,19 +322,16 @@ function hideNotification() {
     }, 800);
 }
 
-async function loopRefreshWallet() {
-
+async function refreshWallet() {
     if (state.walletOpen === true) {
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
 
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
-            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet getbalance");
+            processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
-            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet listtransactions");
+            processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
-
-        setTimeout(loopRefreshWallet, 4000);
     }
 }
 
