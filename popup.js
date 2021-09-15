@@ -47,14 +47,14 @@ function refreshBalance(value) {
 }
 
 function addScrollListener() {
-    document.getElementById("transactions-container")
-        .addEventListener('scroll', function (event) {
-            var element = event.target;
-            if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-                state.transactionsReturned = state.transactionsReturned + 10;
-                refreshWallet();
-            }
-        });
+    var container = document.getElementById("transactions-container");
+    container.addEventListener('scroll', function (event) {
+        var element = event.target;
+        if (element.scrollHeight - element.scrollTop === element.clientHeight) {
+            state.transactionsReturned = state.transactionsReturned + 10;
+            refreshWallet();
+        }
+    });
 }
 
 function processLatestTransactions(latestTransactions = []) {
