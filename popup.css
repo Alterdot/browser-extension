@@ -672,17 +672,13 @@ input:checked+.slider:before {
     background-color: rgb(54, 121, 197);
 }
 
-#parent-transactions-container {
+#transactions-container {
     width: 340px;
     height:259px;
     flex-flow: column;
     align-items: center;
     margin-top: auto;
-    overflow:hidden;
-}
-#transactions-container {
-    all: inherit;
-    overflow:scroll;
+    overflow-y:scroll;
 }
 /* #transactions-container::-webkit-scrollbar {
     display: none;
