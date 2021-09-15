@@ -427,7 +427,6 @@ input[type=number] {
 
 .tx-info {
     font-size: 11px;
-    padding-left: 6px;
     padding-right: 4px;
 }
 
@@ -678,7 +677,8 @@ input:checked+.slider:before {
     flex-flow: column;
     align-items: center;
     margin-top: auto;
-    overflow-y:scroll;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 /* #transactions-container::-webkit-scrollbar {
     display: none;

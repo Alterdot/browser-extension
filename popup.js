@@ -13,7 +13,7 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturned: 10    
+    transactionsReturned: 20    
 }
 
 function toggleWallet() {
@@ -108,7 +108,7 @@ function processLatestTransactions(latestTransactions = []) {
                     txType.style.color = "rgb(50, 205, 50)";
                     break;
                 case "send":
-                    if (false && isToSelf(i, address, amount)) {
+                    if (isToSelf(i, address, amount)) {
                         txType.innerHTML = "&#8651;";
                         txType.style.color = "rgb(138,43,226)";
                         i--;
