@@ -13,7 +13,7 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturned: 20    
+    transactionsReturned: 60
 }
 
 function toggleWallet() {
@@ -51,7 +51,7 @@ function addScrollListener() {
     container.addEventListener('scroll', function (event) {
         var element = event.target;
         if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-            state.transactionsReturned = state.transactionsReturned + 10;
+            state.transactionsReturned = state.transactionsReturned + 30;
             refreshWallet();
         }
     });
