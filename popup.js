@@ -106,7 +106,7 @@ function processLatestTransactions(latestTransactions = []) {
 
             switch (category) {
                 case "generate": 
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=green&width=25&height=25'>";
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=green&width=22&height=22'>";
                     break;
                 case "receive":
                     txType.innerHTML = "&#8592;";
@@ -123,10 +123,10 @@ function processLatestTransactions(latestTransactions = []) {
                     }
                     break;
                 case "immature":
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=gray&width=25&height=25'>";
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=gray&width=22&height=22'>";
                     break;
                 case "orphan":
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=red&width=25&height=25'>";
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=red&width=22&height=22'>";
                     break
                 default:
                     txType.innerHTML = "ERR";
