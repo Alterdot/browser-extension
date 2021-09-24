@@ -322,22 +322,17 @@ function hideNotification() {
     }, 800);
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
 async function refreshWallet() {
     if (state.walletOpen === true) {
         document.getElementById('load').style.display = "flex";
+        
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
-        await sleep(2000);
 
         document.getElementById('load').style.display = "none";
     }
