@@ -410,17 +410,12 @@ input[type=number] {
     height: 37px;
     display: flex;
     box-sizing: border-box;
-    padding-left: 16px;
+    padding-left: 8px;
     background: #a0a0a038;
 }
 
-.tx-type,
-.tx-info {
-    margin-left: 4px;
-}
-
 .tx-type {
-    font-size: 16px;
+    font-size: 25px;
     width: 36px;
     text-align: center;
 }
@@ -674,7 +669,7 @@ input:checked+.slider:before {
 
 #transactions-container {
     width: 340px;
-    height:259px;
+    height: 222px;
     flex-flow: column;
     align-items: center;
     margin-top: auto;

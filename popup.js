@@ -90,6 +90,7 @@ function processLatestTransactions(latestTransactions = []) {
 
                     txType.innerHTML = "REG";
                     txType.style.color = "rgb(30, 118, 210)";
+                    txType.style.fontSize = "16px";
 
                     continue;
                 } else if (amount === -0.005 && fee === -0.005) {
@@ -97,13 +98,17 @@ function processLatestTransactions(latestTransactions = []) {
 
                     txType.innerHTML = "UPD";
                     txType.style.color = "rgb(30, 118, 210)";
+                    txType.style.fontSize = "16px";
 
                     continue;
                 }
             }
 
             switch (category) {
-                case "generate": case "receive":
+                case "generate": 
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=green&width=25&height=25'>";
+                    break;
+                case "receive":
                     txType.innerHTML = "&#8592;";
                     txType.style.color = "rgb(50, 205, 50)";
                     break;
@@ -118,16 +123,15 @@ function processLatestTransactions(latestTransactions = []) {
                     }
                     break;
                 case "immature":
-                    txType.innerHTML = "IMM";
-                    txType.style.color = "rgb(192, 192, 192)";
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=gray&width=25&height=25'>";
                     break;
                 case "orphan":
-                    txType.innerHTML = "OPH";
-                    txType.style.color = "rgb(192, 192, 192)";
+                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=red&width=25&height=25'>";
                     break
                 default:
                     txType.innerHTML = "ERR";
                     txType.style.color = "rgb(255, 0, 0)";
+                    txType.style.fontSize = "16px";
             }
         }
     } else {
