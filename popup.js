@@ -125,6 +125,8 @@ function processLatestTransactions(latestTransactions = []) {
         document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
 
+    document.getElementById('load').style.display = "none";
+
     function isToSelf(transactionIndex, currentTransactionAddress, currentTransactionAmount) {
         return transactionIndex >= 1 &&
             currentTransactionAddress == latestTransactions[transactionIndex - 1].address &&
@@ -333,10 +335,6 @@ function hideNotification() {
     }, 800);
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
- }
-
 async function refreshWallet() {
     if (state.walletOpen === true) {
         document.getElementById('load').style.display = "flex";
@@ -348,9 +346,6 @@ async function refreshWallet() {
         sendCommand(url, "listtransactions", ["*", state.transactionsReturnedInitially, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
-
-        await sleep(3000);
-        document.getElementById('load').style.display = "none";
     }
 }
 
