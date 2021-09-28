@@ -64,7 +64,7 @@ function processLatestTransactions(latestTransactions = []) {
     if (latestTransactions.length >= 1) {
         let divNumber = 0;
         //TODO_ADOT_LOW add date-time to the transaction to be more precise about the ordering ?
-        for (var i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
+        for (let i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
 
             const address = latestTransactions[i].address;
             const category = latestTransactions[i].category;
@@ -84,14 +84,14 @@ function processLatestTransactions(latestTransactions = []) {
 
             txInfo.innerHTML += "<br>";
 
-            if (address !== undefined) {
+            if (address != undefined) {
                 txInfo.innerHTML += address;
             } else if (category == "send") {
                 if (amount === -0.1 && fee === -0.1) {
                     updateTx(txInfo, txType, "REG", "rgb(30, 118, 210)", "16px", "BlockchainDNS Registration");
                     continue;
                 } else if (amount === -0.005 && fee === -0.005) {
-                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update");                    continue;
+                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update"); continue;
                 }
             }
 
@@ -154,11 +154,17 @@ function processLatestTransactions(latestTransactions = []) {
     }
 
     function updateTx(txInfo, txType, txTypeText, txTypeColor, txTypeFontSize, txInfoText) {
-        txInfo.innerHTML += txInfoText;
+        if (txInfoText != undefined) {
+            txInfo.innerHTML += txInfoText;
+        }
 
         txType.innerHTML = txTypeText;
-        txType.style.color = txTypeColor;
-        txType.style.fontSize = txTypeFontSize;
+        if (txTypeColor != undefined) {
+            txType.style.color = txTypeColor;
+        }
+        if (txTypeFontSize != undefined) {
+            txType.style.fontSize = txTypeFontSize;
+        }
     }
 
     function getMiningIconLink(color, width, height) {
