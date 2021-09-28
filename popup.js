@@ -104,7 +104,8 @@ function processLatestTransactions(latestTransactions = []) {
                     break;
                 case "send":
                     if (isToSelf(i, address, amount)) {
-                        updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
+                        // updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
+                        updateTx(txInfo, txType, getMiningIconLink("green", 22, 22));
                         i--;
                     } else {
                         updateTx(txInfo, txType, "&#8594;", "rgb(255, 0, 0)");
@@ -332,6 +333,10 @@ function hideNotification() {
     }, 800);
 }
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+ }
+
 async function refreshWallet() {
     if (state.walletOpen === true) {
         document.getElementById('load').style.display = "flex";
@@ -344,6 +349,7 @@ async function refreshWallet() {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
 
+        await sleep(3000);
         document.getElementById('load').style.display = "none";
     }
 }
