@@ -13,7 +13,8 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturned: 60
+    transactionsReturnedInitially: 60,
+    transactionReturnedOnScrollDown: 30
 }
 
 function toggleWallet() {
@@ -51,18 +52,19 @@ function addScrollListener() {
     container.addEventListener('scroll', function (event) {
         var element = event.target;
         if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-            state.transactionsReturned = state.transactionsReturned + 30;
+            state.transactionsReturnedInitially = state.transactionsReturnedInitially + state.transactionReturnedOnScrollDown;
             refreshWallet();
         }
     });
 }
+
 
 function processLatestTransactions(latestTransactions = []) {
 
     if (latestTransactions.length >= 1) {
         let divNumber = 0;
         //TODO_ADOT_LOW add date-time to the transaction to be more precise about the ordering ?
-        for (let i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
+        for (var i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
 
             const address = latestTransactions[i].address;
             const category = latestTransactions[i].category;
@@ -86,52 +88,36 @@ function processLatestTransactions(latestTransactions = []) {
                 txInfo.innerHTML += address;
             } else if (category == "send") {
                 if (amount === -0.1 && fee === -0.1) {
-                    txInfo.innerHTML += "BlockchainDNS Registration";
-
-                    txType.innerHTML = "REG";
-                    txType.style.color = "rgb(30, 118, 210)";
-                    txType.style.fontSize = "16px";
-
+                    updateTx(txInfo, txType, "REG", "rgb(30, 118, 210)", "16px", "BlockchainDNS Registration");
                     continue;
                 } else if (amount === -0.005 && fee === -0.005) {
-                    txInfo.innerHTML += "BlockchainDNS Update";
-
-                    txType.innerHTML = "UPD";
-                    txType.style.color = "rgb(30, 118, 210)";
-                    txType.style.fontSize = "16px";
-
-                    continue;
+                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update");                    continue;
                 }
             }
 
             switch (category) {
-                case "generate": 
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=green&width=22&height=22'>";
+                case "generate":
+                    updateTx(txInfo, txType, getMiningIconLink("green", 22, 22));
                     break;
                 case "receive":
-                    txType.innerHTML = "&#8592;";
-                    txType.style.color = "rgb(50, 205, 50)";
+                    updateTx(txInfo, txType, "&#8592;", "rgb(50, 205, 50)");
                     break;
                 case "send":
                     if (isToSelf(i, address, amount)) {
-                        txType.innerHTML = "&#8651;";
-                        txType.style.color = "rgb(138,43,226)";
+                        updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
                         i--;
                     } else {
-                        txType.innerHTML = "&#8594;";
-                        txType.style.color = "rgb(255, 0, 0)";
+                        updateTx(txInfo, txType, "&#8594;", "rgb(255, 0, 0)");
                     }
                     break;
                 case "immature":
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=gray&width=22&height=22'>";
+                    updateTx(txInfo, txType, getMiningIconLink("gray", 22, 22));
                     break;
                 case "orphan":
-                    txType.innerHTML = "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=red&width=22&height=22'>";
+                    updateTx(txInfo, txType, getMiningIconLink("red", 22, 22));
                     break
                 default:
-                    txType.innerHTML = "ERR";
-                    txType.style.color = "rgb(255, 0, 0)";
-                    txType.style.fontSize = "16px";
+                    updateTx(txInfo, txType, "ERR", "rgb(255, 0, 0)", "16px");
             }
         }
     } else {
@@ -166,6 +152,23 @@ function processLatestTransactions(latestTransactions = []) {
         tx.className = tx_data;
         return tx;
     }
+
+    function updateTx(txInfo, txType, txTypeText, txTypeColor, txTypeFontSize, txInfoText) {
+        txInfo.innerHTML += txInfoText;
+
+        txType.innerHTML = txTypeText;
+        txType.style.color = txTypeColor;
+
+        if(txTypeFontSize != undefined){
+            txType.style.fontSize = txTypeFontSize;
+        }
+    }
+
+    function getMiningIconLink(color, width, height) {
+        return "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=" +
+            color + "&width=" + parseInt(width) + "&height=" + parseInt(height) + "'>";
+    }
+
 }
 
 function updateDecentralized() {
@@ -329,12 +332,12 @@ function hideNotification() {
 async function refreshWallet() {
     if (state.walletOpen === true) {
         document.getElementById('load').style.display = "flex";
-        
+
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
+        sendCommand(url, "listtransactions", ["*", state.transactionsReturnedInitially, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
 

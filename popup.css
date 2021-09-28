@@ -673,18 +673,16 @@ input:checked+.slider:before {
     flex-flow: column;
     align-items: center;
     margin-top: auto;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: auto;
 }
 #transactions-container::-webkit-scrollbar {
     display: none;
 }
 
 #load{
-    width:100%;
-    height:50%;
-    position:fixed;
-    z-index:9;
+    width: 100%;
+    height: 50%;
+    position: fixed;
     background:url("loading.gif") no-repeat center center rgba(0,0,0,0.25);
     background-size: 30px;
 }
