@@ -158,10 +158,7 @@ function processLatestTransactions(latestTransactions = []) {
 
         txType.innerHTML = txTypeText;
         txType.style.color = txTypeColor;
-
-        if(txTypeFontSize != undefined){
-            txType.style.fontSize = txTypeFontSize;
-        }
+        txType.style.fontSize = txTypeFontSize;
     }
 
     function getMiningIconLink(color, width, height) {
