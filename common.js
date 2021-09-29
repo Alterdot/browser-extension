@@ -110,9 +110,6 @@ function processRequestFail(useDebug, reqStatus, errMessage, details) {
     if (useDebug) {
         console.log(`The request with details "${details}" failed with status code ${reqStatus} and error message "${errMessage}".`);
     }
-
-    document.getElementById('load').style.display = "none";
-    displayNotification("error", "Failed to retrieve transactions");
 }
 
 function openSettings() {

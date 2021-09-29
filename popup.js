@@ -342,6 +342,9 @@ async function refreshWallet() {
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
+            
+            document.getElementById('load').style.display = "none";
+            displayNotification("error", "Failed to retrieve transactions");
         }, state.useDebug);
     }
 }
