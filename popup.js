@@ -13,8 +13,8 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturnedInitially: 60,
-    transactionReturnedOnScrollDown: 30
+    transactionsReturned: 60,
+    transactionsAddedOnScroll: 30
 }
 
 function toggleWallet() {
@@ -52,7 +52,7 @@ function addScrollListener() {
     container.addEventListener('scroll', function (event) {
         var element = event.target;
         if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-            state.transactionsReturnedInitially = state.transactionsReturnedInitially + state.transactionReturnedOnScrollDown;
+            state.transactionsReturned = state.transactionsReturned + state.transactionsAddedOnScroll;
             refreshWallet();
         }
     });
@@ -97,25 +97,24 @@ function processLatestTransactions(latestTransactions = []) {
 
             switch (category) {
                 case "generate":
-                    updateTx(txInfo, txType, getMiningIconLink("green", 22, 22));
+                    updateTx(txInfo, txType, getMiningIconLink("green"));
                     break;
                 case "receive":
                     updateTx(txInfo, txType, "&#8592;", "rgb(50, 205, 50)");
                     break;
                 case "send":
                     if (isToSelf(i, address, amount)) {
-                        // updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
-                        updateTx(txInfo, txType, getMiningIconLink("green", 22, 22));
+                        updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
                         i--;
                     } else {
                         updateTx(txInfo, txType, "&#8594;", "rgb(255, 0, 0)");
                     }
                     break;
                 case "immature":
-                    updateTx(txInfo, txType, getMiningIconLink("gray", 22, 22));
+                    updateTx(txInfo, txType, getMiningIconLink("gray"));
                     break;
                 case "orphan":
-                    updateTx(txInfo, txType, getMiningIconLink("red", 22, 22));
+                    updateTx(txInfo, txType, getMiningIconLink("red"));
                     break
                 default:
                     updateTx(txInfo, txType, "ERR", "rgb(255, 0, 0)", "16px");
@@ -156,12 +155,12 @@ function processLatestTransactions(latestTransactions = []) {
         return tx;
     }
 
-    function updateTx(txInfo, txType, txTypeText, txTypeColor, txTypeFontSize, txInfoText) {
+    function updateTx(txInfo, txType, txTypeContent, txTypeColor, txTypeFontSize, txInfoText) {
         if (txInfoText != undefined) {
             txInfo.innerHTML += txInfoText;
         }
 
-        txType.innerHTML = txTypeText;
+        txType.innerHTML = txTypeContent;
         if (txTypeColor != undefined) {
             txType.style.color = txTypeColor;
         }
@@ -170,11 +169,9 @@ function processLatestTransactions(latestTransactions = []) {
         }
     }
 
-    function getMiningIconLink(color, width, height) {
-        return "<img src='https://api.iconify.design/mdi/pickaxe.svg?color=" +
-            color + "&width=" + parseInt(width) + "&height=" + parseInt(height) + "'>";
+    function getMiningIconLink(color) {
+        return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M14.79 10.62L3.5 21.9l-1.4-1.4L13.38 9.21l1.41 1.41m4.48-2.89l.59-.59l-.79-.79l.64-.64l-1.42-1.42l-.64.64l-.79-.79l-.59.59c-1.74-1.42-3.7-2.56-5.8-3.36l-.83 1.79c1.75.92 3.36 2.03 4.86 3.34L14 7l3 3l.5-.5c1.31 1.5 2.42 3.11 3.34 4.86l1.79-.83c-.8-2.1-1.94-4.06-3.36-5.8z" fill="' + color + '"/></svg>'
     }
-
 }
 
 function updateDecentralized() {
@@ -343,7 +340,7 @@ async function refreshWallet() {
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", state.transactionsReturnedInitially, 0], processLatestTransactions, (reqStatus, errMessage) => {
+        sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
         }, state.useDebug);
     }
