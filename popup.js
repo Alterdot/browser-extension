@@ -100,14 +100,14 @@ function processLatestTransactions(latestTransactions = []) {
                     updateTx(txInfo, txType, getMiningIconLink("green"));
                     break;
                 case "receive":
-                    updateTx(txInfo, txType, "&#8592;", "rgb(50, 205, 50)");
+                    updateTx(txInfo, txType, receiveTransactionIcon);
                     break;
                 case "send":
                     if (isToSelf(i, address, amount)) {
-                        updateTx(txInfo, txType, "&#8651;", "rgb(138,43,226)");
+                        updateTx(txInfo, txType, selfTransactionIcon);
                         i--;
                     } else {
-                        updateTx(txInfo, txType, "&#8594;", "rgb(255, 0, 0)");
+                        updateTx(txInfo, txType, receiveTransactionIcon);
                     }
                     break;
                 case "immature":
@@ -561,5 +561,9 @@ function init() {
         }
     }, false);
 }
+
+const selfTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M18 2l3 3l-3 3" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 22l-3-3l3-3" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 5H10a7 7 0 0 0-7 7" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 19h11a7 7 0 0 0 7-7" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+const receiveTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M11 5l-7 7l7 7" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h16" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+const sendTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M4 12h16" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 5l7 7l-7 7" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
 
 init();
