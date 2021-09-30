@@ -334,7 +334,7 @@ function hideNotification() {
 
 async function refresgithWallet(withLoading = false) {
     if (state.walletOpen === true) {
-        if (state.withLoading) {
+        if (withLoading) {
             document.getElementById('load').style.display = "flex";
         }
 
