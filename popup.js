@@ -332,14 +332,14 @@ function hideNotification() {
     }, 800);
 }
 
-async function refresgithWallet(withLoading = false) {
+async function refreshWallet(withLoading = false) {
     if (state.walletOpen === true) {
         if (withLoading) {
             document.getElementById('load').style.display = "flex";
         }
 
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-        sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
+        sendCommand(url, "get balance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
