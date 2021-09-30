@@ -14,7 +14,8 @@ var state = {
     readyDOM: false,
     useDebug: false,
     transactionsReturned: 60,
-    transactionsAddedOnScroll: 30
+    transactionsAddedOnScroll: 30,
+    withLoading: false
 }
 
 function toggleWallet() {
@@ -28,6 +29,7 @@ function toggleWallet() {
         changeViewText.innerHTML = "Home";
 
         state.walletOpen = true;
+        state.withLoading = true;
         refreshWallet();
         addScrollListener();
         setInterval(refreshWallet, 4000);
@@ -334,7 +336,9 @@ function hideNotification() {
 
 async function refreshWallet() {
     if (state.walletOpen === true) {
-        document.getElementById('load').style.display = "flex";
+        if (state.withLoading) {
+            document.getElementById('load').style.display = "flex";
+        }
 
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
@@ -342,7 +346,7 @@ async function refreshWallet() {
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
-            
+
             document.getElementById('load').style.display = "none";
             displayNotification("error", "Failed to retrieve transactions");
         }, state.useDebug);
