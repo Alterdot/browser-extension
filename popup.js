@@ -14,8 +14,7 @@ var state = {
     readyDOM: false,
     useDebug: false,
     transactionsReturned: 60,
-    transactionsAddedOnScroll: 30,
-    withLoading: false
+    transactionsAddedOnScroll: 30
 }
 
 function toggleWallet() {
@@ -29,7 +28,6 @@ function toggleWallet() {
         changeViewText.innerHTML = "Home";
 
         state.walletOpen = true;
-        state.withLoading = true;
         refreshWallet();
         addScrollListener();
         setInterval(refreshWallet, 4000);
@@ -55,7 +53,7 @@ function addScrollListener() {
         var element = event.target;
         if (element.scrollHeight - element.scrollTop === element.clientHeight) {
             state.transactionsReturned = state.transactionsReturned + state.transactionsAddedOnScroll;
-            refreshWallet();
+            refreshWallet(true);
         }
     });
 }
@@ -334,7 +332,7 @@ function hideNotification() {
     }, 800);
 }
 
-async function refreshWallet() {
+async function refresgithWallet(withLoading = false) {
     if (state.walletOpen === true) {
         if (state.withLoading) {
             document.getElementById('load').style.display = "flex";
