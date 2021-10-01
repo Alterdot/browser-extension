@@ -339,7 +339,7 @@ async function refreshWallet(withLoading = false) {
         }
 
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-        sendCommand(url, "get balance", [], refreshBalance, (reqStatus, errMessage) => {
+        sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
         sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
