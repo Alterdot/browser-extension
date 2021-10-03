@@ -58,8 +58,7 @@
         <div id="main-buttons-container">
             <div class="toggle-toolbar-button" id="toolbar-button">
                 <div class="toggle-toolbar-icon">
-                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search"
-                        class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                         <!--
                         Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com
                         License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
@@ -118,7 +117,8 @@
                         <input class="wallet-input" type="text" placeholder="Address" name="address">
                         <input class="wallet-input" type="number" min="0.0001" step="0.0001" placeholder="Amount" name="amount">
                     </div>
-                    <div class="wallet-action register-action invisible"> <!-- also used for update of domains -->
+                    <div class="wallet-action register-action invisible">
+                        <!-- also used for update of domains -->
                         <input class="wallet-input" type="text" placeholder="Domain Name" name="domain">
                         <input class="wallet-input" type="text" placeholder="IPFS Hash" name="hash">
                     </div>
@@ -131,31 +131,8 @@
                     </div>
                 </form>
             </div>
-            <div class="transactions-container">
-                <div id="tx0" class="transaction">
-                    <div id="tx-type-0" class="tx-type"></div>
-                    <div id="tx-info-0" class="tx-info"></div>
-                </div>
-                <div id="tx1" class="transaction">
-                    <span id="tx-type-1" class="tx-type"></span>
-                    <span id="tx-info-1" class="tx-info"></span>
-                </div>
-                <div id="tx2" class="transaction">
-                    <span id="tx-type-2" class="tx-type"></span>
-                    <span id="tx-info-2" class="tx-info"></span>
-                </div>
-                <div id="tx3" class="transaction">
-                    <span id="tx-type-3" class="tx-type"></span>
-                    <span id="tx-info-3" class="tx-info"></span>
-                </div>
-                <div id="tx4" class="transaction">
-                    <span id="tx-type-4" class="tx-type"></span>
-                    <span id="tx-info-4" class="tx-info"></span>
-                </div>
-                <div id="tx5" class="transaction">
-                    <span id="tx-type-5" class="tx-type"></span>
-                    <span id="tx-info-5" class="tx-info"></span>
-                </div>
+            <div id="transactions-container">
+                <div id="load"></div>
             </div>
         </div>
     </div>

@@ -12,26 +12,33 @@ var state = {
     rpcPort: "31050",
     ready: 0, // ready on 8
     readyDOM: false,
-    useDebug: false
+    useDebug: false,
+    transactionsToFetch: 60,
+    transactionsReturned: 0,
+    transactionsAddedOnScroll: 30
+
 }
 
 function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
     let initialView = document.getElementById("home-container");
     let walletView = document.getElementById("wallet-container");
-    
+
     if (changeViewText.innerHTML == "Wallet") {
         initialView.style.display = "none";
         walletView.style.display = "flex";
         changeViewText.innerHTML = "Home";
-        
+
+        document.getElementById('load').style.display = "flex";
         state.walletOpen = true;
-        loopRefreshWallet();
+        refreshWallet();
+        addScrollListener();
+        setInterval(refreshWallet, 4000);
     } else if (changeViewText.innerHTML == "Home") {
         initialView.style.display = "flex";
         walletView.style.display = "none";
         changeViewText.innerHTML = "Wallet";
-        
+
         state.walletOpen = false;
     }
 }
@@ -43,71 +50,144 @@ function refreshBalance(value) {
     }
 }
 
+function addScrollListener() {
+    var container = document.getElementById("transactions-container");
+    container.addEventListener('scroll', function (event) {
+        var element = event.target;
+        if (element.scrollHeight - element.scrollTop === element.clientHeight && state.transactionsReturned == state.transactionsToFetch) {
+            document.getElementById('load').style.display = "flex";
+            state.transactionsToFetch = state.transactionsToFetch + state.transactionsAddedOnScroll;
+            refreshWallet();
+        }
+    });
+}
+
+
 function processLatestTransactions(latestTransactions = []) {
-    if (latestTransactions.length >= 1) {
-        for (let i = latestTransactions.length - 1; i >= 0; i--) {
-            txInfo = document.getElementById("tx-info-" + (latestTransactions.length - 1 - i));
-            txType = document.getElementById("tx-type-" + (latestTransactions.length - 1 - i));
+    const transactionsNumber = latestTransactions.length;
+    state.transactionsReturned = transactionsNumber;
+    if (transactionsNumber >= 1) {
+        let divNumber = 0;
+        //TODO_ADOT_LOW add date-time to the transaction to be more precise about the ordering ?
+        for (let i = transactionsNumber - 1; i >= 0; i--, divNumber++) {
 
-            txInfo.innerHTML = ((latestTransactions[i].amount * 100) / 100).toFixed(2) + " to ";
+            const address = latestTransactions[i].address;
+            const category = latestTransactions[i].category;
+            const amount = latestTransactions[i].amount;
+            const fee = latestTransactions[i].fee;
+            const account = latestTransactions[i].account;
 
-            if (latestTransactions[i].account != "") {
-                txInfo.innerHTML += " " + latestTransactions[i].account;
+            createTxContainerDiv(divNumber);
+            let txInfo = document.getElementById("tx-info-" + divNumber);
+            let txType = document.getElementById("tx-type-" + divNumber);
+
+            txInfo.innerHTML = ((amount * 100) / 100).toFixed(2) + " to ";
+
+            if (account != "") {
+                txInfo.innerHTML += " " + account;
             }
 
             txInfo.innerHTML += "<br>";
 
-            if (latestTransactions[i].address !== undefined) {
-                txInfo.innerHTML += latestTransactions[i].address;
-            } else if (latestTransactions[i].category == "send") {
-                if (latestTransactions[i].amount === -0.1 && latestTransactions[i].fee === -0.1) {
-                    txInfo.innerHTML += "BlockchainDNS Registration";
-                    
-                    txType.innerHTML = "REG";
-                    txType.style.color = "rgb(30, 118, 210)";
-
+            if (address != undefined) {
+                txInfo.innerHTML += address;
+            } else if (category == "send") {
+                if (amount === -0.1 && fee === -0.1) {
+                    updateTx(txInfo, txType, "REG", "rgb(30, 118, 210)", "16px", "BlockchainDNS Registration");
                     continue;
-                } else if (latestTransactions[i].amount === -0.005 && latestTransactions[i].fee === -0.005) {
-                    txInfo.innerHTML += "BlockchainDNS Update";
-                    
-                    txType.innerHTML = "UPD";
-                    txType.style.color = "rgb(30, 118, 210)";
-
-                    continue;
+                } else if (amount === -0.005 && fee === -0.005) {
+                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update"); continue;
                 }
             }
 
-            if (latestTransactions[i].category == "generate" || latestTransactions[i].category == "receive") {
-                txType.innerHTML = "IN";
-                txType.style.color = "rgb(50, 205, 50)";
-            } else if (latestTransactions[i].category === "send") {
-                txType.innerHTML = "OUT";
-                txType.style.color = "rgb(255, 0, 0)";
-            } else if (latestTransactions[i].category == "immature") {
-                txType.innerHTML = "IMM";
-                txType.style.color = "rgb(192, 192, 192)";
-            } else if (latestTransactions[i].category == "orphan") {
-                txType.innerHTML = "OPH";
-                txType.style.color = "rgb(192, 192, 192)";
+            switch (category) {
+                case "generate":
+                    updateTx(txInfo, txType, getMiningIconLink("green"));
+                    break;
+                case "receive":
+                    updateTx(txInfo, txType, receiveTransactionIcon);
+                    break;
+                case "send":
+                    if (isToSelf(i, address, amount)) {
+                        updateTx(txInfo, txType, selfTransactionIcon);
+                        i--;
+                    } else {
+                        updateTx(txInfo, txType, receiveTransactionIcon);
+                    }
+                    break;
+                case "immature":
+                    updateTx(txInfo, txType, getMiningIconLink("gray"));
+                    break;
+                case "orphan":
+                    updateTx(txInfo, txType, getMiningIconLink("red"));
+                    break
+                default:
+                    updateTx(txInfo, txType, "ERR", "rgb(255, 0, 0)", "16px");
             }
         }
     } else {
         document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
+
+    document.getElementById('load').style.display = "none";
+
+    function isToSelf(transactionIndex, currentTransactionAddress, currentTransactionAmount) {
+        return transactionIndex >= 1 &&
+            currentTransactionAddress == latestTransactions[transactionIndex - 1].address &&
+            Math.abs(currentTransactionAmount) ==
+            Math.abs(latestTransactions[transactionIndex - 1].amount);
+    }
+
+    function createTxContainerDiv(index) {
+        const newDivId = "tx-" + index;
+        if (document.getElementById(newDivId) != null)
+            return;
+
+        var div = document.createElement('div');
+        div.id = newDivId;
+        div.className = "transaction";
+
+        div.appendChild(createTxInnerDiv(index, "tx-type"));
+        div.appendChild(createTxInnerDiv(index, "tx-info"));
+
+        document.getElementById('transactions-container').appendChild(div);
+    }
+
+    function createTxInnerDiv(i, tx_data) {
+        var tx = document.createElement('div');
+        tx.id = tx_data + "-" + i;
+        tx.className = tx_data;
+        return tx;
+    }
+
+    function updateTx(txInfo, txType, txTypeContent, txTypeColor, txTypeFontSize, txInfoText) {
+        if (txInfoText != undefined) {
+            txInfo.innerHTML += txInfoText;
+        }
+
+        txType.innerHTML = txTypeContent;
+        if (txTypeColor != undefined) {
+            txType.style.color = txTypeColor;
+        }
+        if (txTypeFontSize != undefined) {
+            txType.style.fontSize = txTypeFontSize;
+        }
+    }
+
+    function getMiningIconLink(color) {
+        return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M14.79 10.62L3.5 21.9l-1.4-1.4L13.38 9.21l1.41 1.41m4.48-2.89l.59-.59l-.79-.79l.64-.64l-1.42-1.42l-.64.64l-.79-.79l-.59.59c-1.74-1.42-3.7-2.56-5.8-3.36l-.83 1.79c1.75.92 3.36 2.03 4.86 3.34L14 7l3 3l.5-.5c1.31 1.5 2.42 3.11 3.34 4.86l1.79-.83c-.8-2.1-1.94-4.06-3.36-5.8z" fill="' + color + '"/></svg>'
+    }
 }
 
 function updateDecentralized() {
-    if (state.onlineADOT && state.onlineIPFS) {
-        decentContainer = document.getElementsByClassName("decent-container")[0];
-        decentText = document.getElementsByClassName("decent-text")[0];
+    let decentContainer = document.getElementsByClassName("decent-container")[0];
+    let decentText = document.getElementsByClassName("decent-text")[0];
 
+    if (state.onlineADOT && state.onlineIPFS) {
         decentContainer.style.transition = "background-color 1.5s ease"; // add the transition effect only when first changing the Decentralized status 
         decentContainer.style.backgroundColor = "rgba(44, 175, 44, 0.8)";
         decentText.style.color = "rgba(255, 255, 255, 0.9)";
     } else {
-        decentContainer = document.getElementsByClassName("decent-container")[0];
-        decentText = document.getElementsByClassName("decent-text")[0];
-
         decentContainer.style.transition = "background-color 1.5s ease";
         decentContainer.style.backgroundColor = "rgba(162, 162, 162, 0.2)";
         decentText.style.color = "rgba(162, 162, 162, 0.6)";
@@ -213,7 +293,7 @@ function executeOperation() {
     sendCommand(url, command, params, (message) => {
         if (command == "walletpassphrase") { // only possible operation that doesn't return a txHash
             displayNotification("success", "Wallet unlocked successfully!");
-        } else { 
+        } else {
             displayNotification("success", `Transaction succeeded with hash: ${message}`);
         }
     }, (reqStatus, errMessage) => {
@@ -232,7 +312,7 @@ function displayNotification(type, message) {
 
     let notification = document.getElementById("notification");
     let notifText = document.getElementById("text-notif");
-    
+
     notification.classList.add(type);
     notifText.innerHTML = message;
 
@@ -247,7 +327,7 @@ function hideNotification() {
 
     let notification = document.getElementById("notification");
     let notifText = document.getElementById("text-notif");
-    
+
     notification.classList.remove("visible");
 
     // transition delay
@@ -257,18 +337,22 @@ function hideNotification() {
     }, 800);
 }
 
-async function loopRefreshWallet() {
+async function refreshWallet() {
     if (state.walletOpen === true) {
+        if(state.useDebug){
+            console.log("Transactions to fetch: " + state.transactionsToFetch)
+            console.log("Transactions returned: " + state.transactionsReturned);
+        }
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
-
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
-            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet getbalance");
+            processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", 6, 0], processLatestTransactions, (reqStatus, errMessage) => {
-            processRequestFail(state.useDebug, reqStatus, errMessage, "loopRefreshWallet listtransactions");
-        }, state.useDebug);
+        sendCommand(url, "listtransactions", ["*", state.transactionsToFetch, 0], processLatestTransactions, (reqStatus, errMessage) => {
+            processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
 
-        setTimeout(loopRefreshWallet, 4000);
+            document.getElementById('load').style.display = "none";
+            displayNotification("error", "Failed to retrieve transactions");
+        }, state.useDebug);
     }
 }
 
@@ -279,7 +363,7 @@ function updateOperation(operation) {
     if (selectedElement === "update") {
         selectedElement = "register";
     }
-    
+
     document.forms["wallet-action-form"].reset();
     document.querySelector("#wallet-action-form .wallet-action:not(.invisible)").classList.toggle("invisible");
     document.querySelector(`#wallet-action-form .wallet-action.${selectedElement}-action`).classList.toggle("invisible");
@@ -292,41 +376,41 @@ function syncState() {
 
             doWhenDOMReady(updateAdotStatus);
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("onlineIPFS", function (result) {
         if (result) {
             state.onlineIPFS = result["onlineIPFS"];
-            
+
             doWhenDOMReady(updateIpfsStatus);
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcPort", function (result) {
         if (result && result["rpcPort"]) {
             state.rpcPort = result["rpcPort"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcUser", function (result) {
         if (result && result["rpcUser"]) {
             state.rpcUser = result["rpcUser"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("rpcPass", function (result) {
         if (result && result["rpcPass"]) {
             state.rpcPass = result["rpcPass"];
         }
-    
+
         state.ready++;
     });
 
@@ -334,10 +418,10 @@ function syncState() {
         if (result && "useDebug" in result) {
             state.useDebug = result["useDebug"];
         }
-    
+
         state.ready++;
     });
-    
+
     chrome.storage.sync.get("useInterceptedSearch", function (result) {
         if (result && "useInterceptedSearch" in result) {
             state.useInterceptedSearch = result["useInterceptedSearch"];
@@ -348,7 +432,7 @@ function syncState() {
                 }
             });
         }
-    
+
         state.ready++;
     });
 
@@ -375,7 +459,7 @@ function doWhenDOMReady(action, noTry = 0) {
         setTimeout(() => {
             doWhenDOMReady(action, noTry++);
         }, 100);
-    
+
         return;
     }
 
@@ -387,7 +471,7 @@ function processUpdatedStorageElement(name, value) {
         console.log(`Warning: In popup, the old value of ${name} in state doesn't match the old value from storage.`);
 
     state[name] = value.newValue;
-    
+
     switch (name) {
         case "onlineADOT":
             doWhenDOMReady(updateAdotStatus);
@@ -446,36 +530,36 @@ function init() {
                 if (state.useDebug) {
                     console.log(`storage ${key} changed`);
                 }
-    
+
                 if (Object.keys(state).includes(key)) {
                     processUpdatedStorageElement(key, changes[key]);
                 }
             }
         }
     });
-    
+
     document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => {
             document.getElementsByTagName("body")[0].classList.remove("on-init");
         }, 400); // transitions are cancelled on popup initialization
-    
+
         state.readyDOM = true;
-    
+
         document.getElementById("execute-button").addEventListener("click", executeOperation);
         document.getElementById("toolbar-button").addEventListener("click", toggleToolbar);
         document.getElementById("settings-button").addEventListener("click", openSettings);
         document.getElementById("intercepted-search-toggle").addEventListener("click", toggleInterceptedSearch);
         document.querySelector('#close-notif').addEventListener("click", hideNotification);
-    
+
         document.querySelector('.action-select-wrapper').addEventListener('click', function () {
             this.querySelector('.action-select').classList.toggle('open');
         });
-    
+
         for (const option of document.querySelectorAll(".action-option")) {
             option.addEventListener('click', function () {
                 if (!this.classList.contains('selected')) {
                     updateOperation(this.dataset.value);
-    
+
                     this.parentNode.querySelector('.action-option.selected').classList.remove('selected');
                     this.classList.add('selected');
                     this.closest('.action-select').querySelector('.action-select__trigger span').textContent = this.textContent;
@@ -484,5 +568,9 @@ function init() {
         }
     }, false);
 }
+
+const selfTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M18 2l3 3l-3 3" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 22l-3-3l3-3" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 5H10a7 7 0 0 0-7 7" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 19h11a7 7 0 0 0 7-7" stroke="purple" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+const receiveTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M11 5l-7 7l7 7" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 12h16" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
+const sendTransactionIcon = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none"><path d="M4 12h16" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 5l7 7l-7 7" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>';
 
 init();
