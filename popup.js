@@ -13,8 +13,10 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsReturned: 60,
+    transactionsToFetch: 60,
+    transactionsReturned: 0,
     transactionsAddedOnScroll: 30
+
 }
 
 function toggleWallet() {
@@ -27,6 +29,7 @@ function toggleWallet() {
         walletView.style.display = "flex";
         changeViewText.innerHTML = "Home";
 
+        document.getElementById('load').style.display = "flex";
         state.walletOpen = true;
         refreshWallet();
         addScrollListener();
@@ -51,20 +54,22 @@ function addScrollListener() {
     var container = document.getElementById("transactions-container");
     container.addEventListener('scroll', function (event) {
         var element = event.target;
-        if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-            state.transactionsReturned = state.transactionsReturned + state.transactionsAddedOnScroll;
-            refreshWallet(true);
+        if (element.scrollHeight - element.scrollTop === element.clientHeight && state.transactionsReturned == state.transactionsToFetch) {
+            document.getElementById('load').style.display = "flex";
+            state.transactionsToFetch = state.transactionsToFetch + state.transactionsAddedOnScroll;
+            refreshWallet();
         }
     });
 }
 
 
 function processLatestTransactions(latestTransactions = []) {
-
-    if (latestTransactions.length >= 1) {
+    const transactionsNumber = latestTransactions.length;
+    state.transactionsReturned = transactionsNumber;
+    if (transactionsNumber >= 1) {
         let divNumber = 0;
         //TODO_ADOT_LOW add date-time to the transaction to be more precise about the ordering ?
-        for (let i = latestTransactions.length - 1; i >= 0; i--, divNumber++) {
+        for (let i = transactionsNumber - 1; i >= 0; i--, divNumber++) {
 
             const address = latestTransactions[i].address;
             const category = latestTransactions[i].category;
@@ -332,17 +337,15 @@ function hideNotification() {
     }, 800);
 }
 
-async function refreshWallet(withLoading = false) {
+async function refreshWallet() {
     if (state.walletOpen === true) {
-        if (withLoading) {
-            document.getElementById('load').style.display = "flex";
-        }
-
+        console.debug("Transactions to fetch: " + state.transactionsToFetch)
+        console.debug("Transactions returned: " + state.transactionsReturned);
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
         }, state.useDebug);
-        sendCommand(url, "listtransactions", ["*", state.transactionsReturned, 0], processLatestTransactions, (reqStatus, errMessage) => {
+        sendCommand(url, "listtransactions", ["*", state.transactionsToFetch, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
 
             document.getElementById('load').style.display = "none";
