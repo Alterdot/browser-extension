@@ -339,8 +339,10 @@ function hideNotification() {
 
 async function refreshWallet() {
     if (state.walletOpen === true) {
-        console.debug("Transactions to fetch: " + state.transactionsToFetch)
-        console.debug("Transactions returned: " + state.transactionsReturned);
+        if(state.useDebug){
+            console.log("Transactions to fetch: " + state.transactionsToFetch)
+            console.log("Transactions returned: " + state.transactionsReturned);
+        }
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);
         sendCommand(url, "getbalance", [], refreshBalance, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet getbalance");
