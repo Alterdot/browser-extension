@@ -2,7 +2,8 @@
     font-family: 'Roboto';
     font-style: normal;
     font-weight: 400;
-    src: url('Roboto-Regular.ttf') format('truetype');
+    src: url('../fonts/woff/Roboto-Regular.woff') format('woff'),
+        url('../fonts/woff2/Roboto-Regular.woff2') format('woff2');
     /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
 }
 
@@ -10,7 +11,8 @@
     font-family: 'Roboto';
     font-style: bold;
     font-weight: 700;
-    src: url('Roboto-Bold.ttf') format('truetype');
+    src: url('../fonts/woff/Roboto-Bold.woff') format('woff')
+        url('../fonts/woff2/Roboto-Bold.woff2') format('woff2');
     /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
 }
 
@@ -44,7 +46,7 @@ body {
 .background-container {
     background-image: linear-gradient(to bottom, #42072e, #12062f 100%);
     width: 340px;
-    height: 480px;
+    height: 490px;
     box-shadow: inset 0px 0px 8px 0px #8A8A8A;
 }
 
@@ -134,7 +136,7 @@ body {
 }
 
 .wallet-action-button {
-    margin: 5px 0px;
+    margin: 8px 0px;
     background-color: #C53B51;
     border-radius: 8px;
     border: unset;
@@ -215,9 +217,9 @@ input[type=number] {
 .wallet-action .wallet-input {
     width: 286px;
     height: 26px;
-    margin: 3px;
     padding-left: 7px;
     color: #FFF;
+    margin-top: 8px;
 }
 
 .wallet-action .wallet-input::placeholder,
@@ -407,7 +409,7 @@ input[type=number] {
 .transaction {
     width: inherit;
     align-items: center;
-    height: 37px;
+    height: 38px;
     display: flex;
     box-sizing: border-box;
     padding-left: 8px;
@@ -418,6 +420,7 @@ input[type=number] {
     font-size: 22px;
     width: 36px;
     text-align: center;
+    padding-top: 7px;
 }
 
 .tx-info {
@@ -430,7 +433,6 @@ input[type=number] {
     position: relative;
     user-select: none;
     width: 290px;
-    margin-bottom: 5px;
 }
 
 .action-select {
@@ -669,21 +671,22 @@ input:checked+.slider:before {
 
 #transactions-container {
     width: 340px;
-    height: 222px;
+    height: 228px;
     flex-flow: column;
     align-items: center;
     margin-top: auto;
     overflow: auto;
 }
+
 #transactions-container::-webkit-scrollbar {
     display: none;
 }
 
-#load{
+#transactions-loading {
     width: 100%;
     height: 50%;
     position: fixed;
     z-index: 7;
-    background:url("loading.gif") no-repeat center center rgba(0,0,0,0.25);
+    background: url("loading.gif") no-repeat center center rgba(0,0,0,0.25);
     background-size: 30px;
 }

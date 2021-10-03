@@ -13,10 +13,9 @@ var state = {
     ready: 0, // ready on 8
     readyDOM: false,
     useDebug: false,
-    transactionsToFetch: 60,
+    transactionsToFetch: 100,
     transactionsReturned: 0,
-    transactionsAddedOnScroll: 30
-
+    transactionsAddedOnScroll: 50
 }
 
 function toggleWallet() {
@@ -29,8 +28,9 @@ function toggleWallet() {
         walletView.style.display = "flex";
         changeViewText.innerHTML = "Home";
 
-        document.getElementById('load').style.display = "flex";
+        document.getElementById('transactions-loading').style.display = "flex";
         state.walletOpen = true;
+
         refreshWallet();
         addScrollListener();
         setInterval(refreshWallet, 4000);
@@ -55,7 +55,7 @@ function addScrollListener() {
     container.addEventListener('scroll', function (event) {
         var element = event.target;
         if (element.scrollHeight - element.scrollTop === element.clientHeight && state.transactionsReturned == state.transactionsToFetch) {
-            document.getElementById('load').style.display = "flex";
+            document.getElementById("transactions-loading").style.display = "flex";
             state.transactionsToFetch = state.transactionsToFetch + state.transactionsAddedOnScroll;
             refreshWallet();
         }
@@ -129,7 +129,7 @@ function processLatestTransactions(latestTransactions = []) {
         document.getElementById("tx-info-0").innerHTML = "&emsp;&emsp;&emsp;&emsp;No transaction history.";
     }
 
-    document.getElementById('load').style.display = "none";
+    document.getElementById("transactions-loading").style.display = "none";
 
     function isToSelf(transactionIndex, currentTransactionAddress, currentTransactionAmount) {
         return transactionIndex >= 1 &&
@@ -350,7 +350,7 @@ async function refreshWallet() {
         sendCommand(url, "listtransactions", ["*", state.transactionsToFetch, 0], processLatestTransactions, (reqStatus, errMessage) => {
             processRequestFail(state.useDebug, reqStatus, errMessage, "refreshWallet listtransactions");
 
-            document.getElementById('load').style.display = "none";
+            document.getElementById("transactions-loading").style.display = "none";
             displayNotification("error", "Failed to retrieve transactions");
         }, state.useDebug);
     }
