@@ -18,27 +18,26 @@
     "scripts": ["common.js", "background.js"]
   },
   "options_ui": {
-    "page": "options.html",
+    "page": "options/options.html",
     "open_in_tab": true
   },
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["toolbar.js", "toolbar-init.js"],
-      "css": ["toolbar-init.css"]
+      "js": ["toolbar/toolbar.js", "toolbar/toolbar-init.js"],
+      "css": ["toolbar/toolbar-init.css"]
     }
   ],
   "web_accessible_resources": [
-    "toolbar.html",
-    "toolbar.css",
-    "Oswald-Regular.ttf",
-    "Oswald-Bold.ttf"
+    "toolbar/toolbar.html",
+    "toolbar/toolbar.css"
   ],
   "browser_action": {
-    "default_icon": "alterdot128.png",
-    "default_popup": "popup.html"
+    "default_icon": "images/alterdot128.png",
+    "default_popup": "popup/popup.html"
   },
   "icons": {
-    "128": "alterdot128.png"
+    "128": "images/alterdot128.png",
+    "256": "images/alterdot256.png"
   }
 }

@@ -1,0 +1,62 @@
+body {
+    margin: unset;
+    display: flex;
+}
+
+#maximized {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 35px;
+    border-radius: 16px 16px 0px 0px;
+    border: 1px solid transparent;
+    border-bottom: 0px;
+    background-color: rgb(193 193 193 / 30%);
+}
+
+.arrow {
+    position: relative;
+    height: 26px;
+    width: 26px;
+}
+
+#trigger-minimize .arrow {
+    bottom: 4px;
+}
+
+#trigger-maximize .arrow {
+    bottom: -8px;
+}
+
+#toolbar-input {
+    background-color: rgb(0 0 0 / 15%);
+    border-radius: 2px;
+    border: 1px solid transparent;
+    height: 20px;
+    width: 72vw;
+    position: relative;
+    margin-left: 6px;
+    margin-bottom: 1px;
+    outline: none;
+}
+
+#toolbar-logo {
+    position: relative;
+    height: 28px;
+    margin-left: 6px;
+    margin-bottom: 1px;
+}
+
+#minimized {
+    overflow: hidden;
+    display: none;
+    align-items: center;
+    position: relative;
+    width: 26px;
+    height: 19px;
+    border-radius: 16px 16px 0px 0px;
+    border: 1px solid transparent;
+    border-bottom: 0px;
+    background-color: rgb(193 193 193 / 30%);
+}

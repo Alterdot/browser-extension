@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="popup.css">
+    <script src="../common.js"></script>
+    <script src="popup.js"></script>
+</head>
+
+<body class="on-init">
+    <div class="background-container">
+        <div id="home-container">
+            <div class="top-container">
+                <span class="welcome-text">Welcome to the Alterdot Decentralized Web!</span>
+                <img class="alterdot-logo" src="../images/alterdot256.png">
+            </div>
+            <div class="bottom-container">
+                <div id="main-container">
+                    <div class="info-text">
+                        The Alterdot Browser Extension allows you to connect to our BDNS (Blockchain Domain Name
+                        System). For full decentralization host locally both an Alterdot node and an IPFS gateway. You
+                        can also rely on our servers for easy access without hosting those two.
+                    </div>
+                    <div class="status-container" id="status-wallet">
+                        <span>
+                            Alterdot Network
+                        </span>
+                        <div class="displayed-status" id="wallet-status">
+                            <div class="status-dot"></div>
+                        </div>
+                    </div>
+                    <div class="status-container" id="status-ipfs">
+                        <span>
+                            IPFS Network
+                        </span>
+                        <div class="displayed-status" id="ipfs-status">
+                            <div class="status-dot"></div>
+                        </div>
+                    </div>
+                    <div class="settings-toggle">
+                        <span>
+                            Intercepted Search
+                        </span>
+                        <label class="switch">
+                            <input type="checkbox" id="intercepted-search-toggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+                <img class="alterdot-logo-bg" src="../images/alterdot256.png">
+                <div class="decent-container">
+                    <p class="decent-text">
+                        DECENTRALIZED
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div id="main-buttons-container">
+            <div class="toggle-toolbar-button" id="toolbar-button">
+                <div class="toggle-toolbar-icon">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="search" class="svg-inline--fa fa-search fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                        <!--
+                        Font Awesome Free 5.15.3 by @fontawesome - https://fontawesome.com
+                        License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License)
+                        -->
+                        <path fill="currentColor" d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0
+                            93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4
+                            9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z">
+                        </path>
+                    </svg>
+                </div>
+            </div>
+            <div class="change-view-button" id="wallet-button">
+                <div id="change-view-text">Wallet</div>
+            </div>
+            <div class="settings-button" id="settings-button">
+                <img class="settings-icon" src="../images/settings-icon.png">
+            </div>
+        </div>
+        <div id="notification" class="error">
+            <span id="close-notif"></span>
+            <span id="text-notif"></span>
+        </div>
+        <div id="wallet-container">
+            <div class="top-wallet-container">
+                <div class="balance-container">
+                    <span class="balance-text">Balance: </span>
+                    <span class="balance-text" id="balance-holder"></span>
+                    <span class="balance-text"> ADOT</span>
+                    <br>
+                    <span>You can view your transactions bellow. Scroll above them in order to bring more.</span>
+                </div>
+                <img class="alterdot-logo" src="../images/alterdot256.png">
+            </div>
+            <div class="actions-container">
+                <form id="wallet-action-form">
+                    <span>
+                        Choose a wallet action to execute by using the dropdown below.
+                    </span>
+                    <br>
+                    <div class="wallet-row">
+                        <div class="action-select-wrapper">
+                            <div class="action-select">
+                                <div class="action-select__trigger"><span>Send Alterdot</span>
+                                    <div class="arrow"></div>
+                                </div>
+                                <div class="action-options">
+                                    <span class="action-option selected" data-value="send">Send Alterdot</span>
+                                    <span class="action-option" data-value="register">Register Domain</span>
+                                    <span class="action-option" data-value="update">Update Domain</span>
+                                    <span class="action-option" data-value="unlock">Unlock Wallet</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wallet-action send-action">
+                        <input class="wallet-input" type="text" placeholder="Address" name="address">
+                        <input class="wallet-input" type="number" min="0.0001" step="0.0001" placeholder="Amount" name="amount">
+                    </div>
+                    <div class="wallet-action register-action invisible">
+                        <!-- also used for update of domains -->
+                        <input class="wallet-input" type="text" placeholder="Domain Name" name="domain">
+                        <input class="wallet-input" type="text" placeholder="IPFS Hash" name="hash">
+                    </div>
+                    <div class="wallet-action unlock-action invisible">
+                        <input class="wallet-input" type="password" placeholder="Password" name="password">
+                        <input class="wallet-input" type="number" min="1" step="1" placeholder="Duration" name="duration">
+                    </div>
+                    <div class="wallet-row">
+                        <button class="wallet-action-button" id="execute-button" type="button">Execute Operation</button>
+                    </div>
+                </form>
+            </div>
+            <div id="transactions-container">
+                <div id="transactions-loading"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

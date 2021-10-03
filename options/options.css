@@ -2,7 +2,8 @@
     font-family: 'Lato';
     font-style: normal;
     font-weight: 400;
-    src: url('Lato-Regular.ttf') format('truetype');
+    src: url('../fonts/woff/Lato-Regular.woff') format('woff'),
+        url('../fonts/woff2/Lato-Regular.woff2') format('woff2');
     /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
 }
 
@@ -10,7 +11,8 @@
     font-family: 'Lato';
     font-style: bold;
     font-weight: 700;
-    src: url('Lato-Bold.ttf') format('truetype');
+    src: url('../fonts/woff/Lato-Bold.woff') format('woff'),
+        url('../fonts/woff2/Lato-Bold.woff2') format('woff2');
     /* Chrome 4+, Firefox 3.5, Opera 10+, Safari 3—5 */
 }
 
