@@ -16,7 +16,7 @@ var state = {
     transactionsToFetch: 100,
     transactionsReturned: 0,
     transactionsAddedOnScroll: 50
-}
+};
 
 function toggleWallet() {
     let changeViewText = document.getElementById("change-view-text");
@@ -96,7 +96,8 @@ function processLatestTransactions(latestTransactions = []) {
                     updateTx(txInfo, txType, "REG", "rgb(30, 118, 210)", "16px", "BlockchainDNS Registration");
                     continue;
                 } else if (amount === -0.005 && fee === -0.005) {
-                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update"); continue;
+                    updateTx(txInfo, txType, "UPD", "rgb(30, 118, 210)", "16px", "BlockchainDNS Update");
+                    continue;
                 }
             }
 
@@ -120,7 +121,7 @@ function processLatestTransactions(latestTransactions = []) {
                     break;
                 case "orphan":
                     updateTx(txInfo, txType, getMiningIconLink("red"));
-                    break
+                    break;
                 default:
                     updateTx(txInfo, txType, "ERR", "rgb(255, 0, 0)", "16px");
             }
@@ -150,7 +151,7 @@ function processLatestTransactions(latestTransactions = []) {
         div.appendChild(createTxInnerDiv(index, "tx-type"));
         div.appendChild(createTxInnerDiv(index, "tx-info"));
 
-        document.getElementById('transactions-container').appendChild(div);
+        document.getElementById("transactions-container").appendChild(div);
     }
 
     function createTxInnerDiv(i, tx_data) {
@@ -206,7 +207,11 @@ function showToolbar() {
 
 // if the toolbar is hidden it should always get displayed maximized after toggling
 function toggleToolbar() {
-    state.toolbarState === "hidden" ? showToolbar() : hideToolbar();
+    if (state.toolbarState === "hidden") {
+        showToolbar()
+    } else {
+        hideToolbar();
+    }
 }
 
 function executeOperation() {
@@ -340,7 +345,7 @@ function hideNotification() {
 async function refreshWallet() {
     if (state.walletOpen === true) {
         if(state.useDebug){
-            console.log("Transactions to fetch: " + state.transactionsToFetch)
+            console.log("Transactions to fetch: " + state.transactionsToFetch);
             console.log("Transactions returned: " + state.transactionsReturned);
         }
         let url = getWalletBaseUrl(state.rpcUser, state.rpcPass, state.rpcPort);

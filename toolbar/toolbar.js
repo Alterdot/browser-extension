@@ -4,8 +4,9 @@ function minimizeToolbar() {
 }
 
 function setMinimizedStyles() {
+    document.getElementById("maximized").style.display = "none";
+
     setTimeout(function () {
-        document.getElementById("maximized").style.display = "none";
         document.getElementById("minimized").style.display = "flex";
     }, 20);
 }
@@ -16,8 +17,9 @@ function maximizeToolbar() {
 }
 
 function setMaximizedStyles() {
+    document.getElementById("minimized").style.display = "none";
+    
     setTimeout(function () {
-        document.getElementById("minimized").style.display = "none";
         document.getElementById("maximized").style.display = "flex";
     }, 20);
 }
@@ -25,10 +27,10 @@ function setMaximizedStyles() {
 function updateToolbar(newState) {
     switch (newState) {
         case "minimized":
-            minimizeToolbar();
+            setMinimizedStyles();
             break;
         case "maximized":
-            maximizeToolbar();
+            setMaximizedStyles();
             break;
         default:
             break;
@@ -56,13 +58,13 @@ function init() {
         if (toolbarMinimize) {
             toolbarMinimize.onclick = function () {
                 minimizeToolbar();
-            }
+            };
         }
 
         if (toolbarMaximize) {
             toolbarMaximize.onclick = function () {
                 maximizeToolbar();
-            }
+            };
         }
 
         if (searchBar) {

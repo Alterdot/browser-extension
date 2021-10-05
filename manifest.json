@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Alterdot Browser Extension",
-  "version": "0.0.10",
+  "version": "0.1.0",
   "description": "Redirects BlockchainDNS requests to IPFS and allows for simple wallet interaction.",
   "permissions": [
     "*://*/*?q=.*",

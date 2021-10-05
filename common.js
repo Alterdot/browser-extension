@@ -25,7 +25,7 @@ function serverResolveDomain(domainName, handleSuccess, handleFail, useDebug = f
 
             handleFail(this.status, req.responseText);
         }
-    }
+    };
 
     req.send();
 }
@@ -100,7 +100,7 @@ function sendCommand(url, command, params, handleSuccess, handleFail, useDebug =
 
             handleFail(this.status, error);
         }
-    }
+    };
 
     req.send(data);
 }

@@ -44,10 +44,10 @@ body {
 }
 
 .background-container {
-    background-image: linear-gradient(to bottom, #42072e, #12062f 100%);
+    background-image: linear-gradient(to bottom, #42072E, #12062f 100%);
     width: 340px;
     height: 490px;
-    box-shadow: inset 0px 0px 8px 0px #8A8A8A;
+    box-shadow: inset 0px 0px 8px 0px #8A8A8A8A;
 }
 
 #home-container {
@@ -136,7 +136,7 @@ body {
 }
 
 .wallet-action-button {
-    margin: 8px 0px;
+    margin: 9px 0px;
     background-color: #C53B51;
     border-radius: 8px;
     border: unset;
@@ -687,6 +687,6 @@ input:checked+.slider:before {
     height: 50%;
     position: fixed;
     z-index: 7;
-    background: url("images/loading.gif") no-repeat center center rgba(0,0,0,0.25);
+    background: url("../images/loading.gif") no-repeat center center rgba(0,0,0,0.25);
     background-size: 30px;
 }

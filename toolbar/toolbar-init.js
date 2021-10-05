@@ -1,11 +1,13 @@
 function minimizeToolbar() {
     let frame = document.querySelector("#alterdot-toolbar-qa2r");
+    frame.style.display = "block";
     frame.style.height = "20px";
     frame.style.width = "28px";
 }
 
 function maximizeToolbar() {
     let frame = document.querySelector("#alterdot-toolbar-qa2r");
+    frame.style.display = "block";
     frame.style.height = "36px";
     frame.style.width = "270px";
 }
@@ -15,19 +17,13 @@ function hideToolbar() {
     frame.style.display = "none";
 }
 
-function showToolbar() {
-    let frame = document.querySelector("#alterdot-toolbar-qa2r");
-    frame.style.display = "block";
-}
-
 function updateToolbar(newState) {
     switch (newState) {
-        case "minimized": // if it gets minimized then it is already displayed
+        case "minimized":
             minimizeToolbar();
             break;
         case "maximized":
             maximizeToolbar();
-            showToolbar(); // show it in case it was previously hidden instead of minimized
             break;
         case "hidden":
             hideToolbar();
