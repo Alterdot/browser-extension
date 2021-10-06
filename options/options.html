@@ -19,6 +19,9 @@
         <div class="explain-fragment">
             &emsp;&emsp;Here you can configure your connections to the Alterdot and IPFS networks and more. Setting up your browser extension correctly is a must if you want to take advantage of a fully decentralized experience. If you just want to browse the Alterdot web without hosting a local wallet or an IPFS node you can skip straight to the section about Alterdot Domain Identifiers.
         </div>
+        <div class="explain-fragment">
+            &emsp;&emsp;<b>Important!</b> Before filling in the information below you must to set up a wallet passphrase in order to maximize security. The storage area for the RPC password is not encrypted and therefore not setting a passphrase exposes you to <b>serious risks of losing all of your funds!</b> Keep in mind that the RPC password is different from your wallet passphrase.
+        </div>
         <div class="settings-row colored">
             <div class="column">
                 <span class="upper-text">Wallet RPC Port</span>
@@ -65,7 +68,7 @@
         <div class="explain-fragment">
             &emsp;&emsp;Whenever you try to access an Alterdot domain our extension looks for one of several special identifiers that let it know that you are indeed looking for such a domain.
             There are three default identifiers: <b>.adot</b> and <b>.a</b> which are added at the end of the domain name as well as <b>.</b> which is added in front. For example, by searching for either <b>bitcoin.adot</b>, <b>bitcoin.a</b> or <b>.bitcoin</b> you will be taken to the <b>bitcoin</b> domain registered on our BlockchainDNS.
-            <br>&emsp;&emsp;The primary way of addressing a blockchain domain works by checking if the search query matches any of the aforementioned patterns. If you discover that it interferes with your usual web surfing, you can disable Intercepted Search in the main extension popup. Report your situation to our team so we can improve the experience with future updates.
+            <br>&emsp;&emsp;The primary way of addressing a blockchain domain name works by checking your search queries for any of the aforementioned patterns. If you discover that it interferes with your usual web surfing, you can disable Intercepted Search in the main extension popup. Report your situation to our team so we can improve the experience with future updates.
         </div>
         <div class="explain-fragment colored">
             &emsp;&emsp;<b>Important!</b> If Intercepted Search is disabled you will have to use the secondary way of addressing domains which is very similar, just add <b>/</b> at the end of the request, like <b>bitcoin.adot/</b> or <b>bitcoin.a/</b>. Beware that the <b>.bitcoin/</b> format is <b>not</b> supported.
@@ -73,7 +76,7 @@
         <div class="settings-row">
             <div class="column">
                 <span class="upper-text">Custom Domain Identifier</span>
-                <span class="lower-text">Create your own custom identifier here, by default <b>.chain</b> can also be used for addressing, change it to anything you want.</span>
+                <span class="lower-text">Create your own custom identifier here, by default <b>.chain</b> can also be used for identifying domains, change it to anything you want.</span>
             </div>
             <div class="settings-input-container">
                 <input class="settings-input" type="text" name="custom-identifier">
