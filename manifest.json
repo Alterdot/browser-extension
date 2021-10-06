@@ -11,8 +11,7 @@
     "*://*.adot/*",
     "webRequest",
     "webRequestBlocking",
-    "storage",
-    "nativeMessaging"
+    "storage"
   ],
   "background": {
     "scripts": ["common.js", "background.js"]
