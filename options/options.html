@@ -19,8 +19,11 @@
         <div class="explain-fragment">
             &emsp;&emsp;Here you can configure your connections to the Alterdot and IPFS networks and more. Setting up your browser extension correctly is a must if you want to take advantage of a fully decentralized experience. If you just want to browse the Alterdot web without hosting a local wallet or an IPFS node you can skip straight to the section about Alterdot Domain Identifiers.
         </div>
-        <div class="explain-fragment">
+        <div class="explain-fragment colored">
             &emsp;&emsp;<b>Important!</b> Before filling in the information below you must to set up a wallet passphrase in order to maximize security. The storage area for the RPC password is not encrypted and therefore not setting a passphrase exposes you to <b>serious risks of losing all of your funds!</b> Keep in mind that the RPC password is different from your wallet passphrase.
+        </div>
+        <div class="explain-fragment">
+            &emsp;&emsp;  In order to set the following wallet parameters you must open up the <b>alterdot.conf</b> file located in your local Alterdot data directory. The line <b>server=1</b> also has to be added to this file in order to enable RPC requests for your wallet. The config file is located by default under Users/your_username/AppData/Roaming/Alterdot on Windows, Library/Application Support/Alterdot on Mac and ~/.alterdot on Linux, this applies only if you did not set a custom directory.
         </div>
         <div class="settings-row colored">
             <div class="column">
